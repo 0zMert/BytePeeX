@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace Folderize.Common
+namespace BytePeeX.Common
 {
     public class RelayCommand : ICommand
     {

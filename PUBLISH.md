@@ -1,6 +1,6 @@
-# Folderize Yayınlama (Publish) Kılavuzu 🚀
+﻿# BytePeeX Yayınlama (Publish) Kılavuzu 🚀
 
-Bu doküman, **Folderize** uygulamasının yeni sürümlerinin nasıl derlenip yayınlanacağını (Release / Publish adımlarını) adım adım açıklamaktadır.
+Bu doküman, **BytePeeX** uygulamasının yeni sürümlerinin nasıl derlenip yayınlanacağını (Release / Publish adımlarını) adım adım açıklamaktadır.
 
 ---
 
@@ -17,14 +17,14 @@ Bu doküman, **Folderize** uygulamasının yeni sürümlerinin nasıl derlenip y
 
 ## 🛠️ Yayınlama Komutları (Build & Publish)
 
-Folderize iki farklı dağıtım modeliyle yayınlanır:
+BytePeeX iki farklı dağıtım modeliyle yayınlanır:
 
 ### 1. Hafif Sürüm (Framework-Dependent Single File)
 * Bilgisayarında .NET 9 Desktop Runtime yüklü olan kullanıcılar içindir.
 * Dosya boyutu yalnızca **~1.7 MB** civarındadır.
 
 ```powershell
-dotnet publish Folderize.csproj `
+dotnet publish BytePeeX.csproj `
   -c Release `
   -r win-x64 `
   --self-contained false `
@@ -37,7 +37,7 @@ dotnet publish Folderize.csproj `
 * .NET çalışma zamanını kendi içine gömer ve tek bir `.exe` üretir.
 
 ```powershell
-dotnet publish Folderize.csproj `
+dotnet publish BytePeeX.csproj `
   -c Release `
   -r win-x64 `
   --self-contained true `
@@ -54,10 +54,10 @@ Yayınlanan çıktıları GitHub Releases için `.zip` formatında paketlemek i�
 
 ```powershell
 # Hafif paketi zip yap
-Compress-Archive -Path "publish/win-x64/Folderize.exe" -DestinationPath "publish/Folderize-v0.4-win-x64.zip" -Force
+Compress-Archive -Path "publish/win-x64/BytePeeX.exe" -DestinationPath "publish/BytePeeX-v0.4-win-x64.zip" -Force
 
 # Bağımsız paketi zip yap
-Compress-Archive -Path "publish/win-x64-standalone/Folderize.exe" -DestinationPath "publish/Folderize-v0.4-win-x64-Standalone.zip" -Force
+Compress-Archive -Path "publish/win-x64-standalone/BytePeeX.exe" -DestinationPath "publish/BytePeeX-v0.4-win-x64-Standalone.zip" -Force
 ```
 
 ---
@@ -67,7 +67,7 @@ Compress-Archive -Path "publish/win-x64-standalone/Folderize.exe" -DestinationPa
 GitHub üzerinde yeni release oluştururken kullanabileceğiniz sürüm notu taslağı:
 
 ```markdown
-# Folderize v0.4 🚀
+# BytePeeX v0.4 🚀
 
 ### ✨ Yenilikler ve İyileştirmeler:
 - 🗑️ **Geri Dönüşüm Kutusu Entegrasyonu**: Ağaç tablosundaki dosyaları sağ tık menüsünden veya Del tuşuyla onay alarak güvenle Windows Geri Dönüşüm Kutusu'na gönderme.
@@ -77,12 +77,12 @@ GitHub üzerinde yeni release oluştururken kullanabileceğiniz sürüm notu tas
 - 🛡️ **Otomatik Yönetici Yetkisi**: Projeye `highestAvailable` uygulama manifesti ve standart modda açıldığında tek tıkla yöneticiye geçiren buton eklendi.
 
 ### 📦 İndirme Seçenekleri:
-- **`Folderize-v0.4-win-x64-Standalone.zip`** (Önerilen): .NET kurulumu gerektirmez, doğrudan çalışır.
-- **`Folderize-v0.4-win-x64.zip`**: .NET 9 Desktop Runtime kurulu sistemler için ultra hafif paket.
+- **`BytePeeX-v0.4-win-x64-Standalone.zip`** (Önerilen): .NET kurulumu gerektirmez, doğrudan çalışır.
+- **`BytePeeX-v0.4-win-x64.zip`**: .NET 9 Desktop Runtime kurulu sistemler için ultra hafif paket.
 ```
 
 ---
 
 ## ⚠️ Önemli Kontroller
 1. Yayınlamadan önce tüm testlerin geçtiğinden emin olun: `dotnet test Tests/Tests.csproj`
-2. `Folderize.exe` uygulamasının arka planda açık olmadığından emin olun (dosya kilitlenme hatası almamak için).
+2. `BytePeeX.exe` uygulamasının arka planda açık olmadığından emin olun (dosya kilitlenme hatası almamak için).

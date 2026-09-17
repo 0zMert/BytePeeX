@@ -1,12 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net9.0-windows</TargetFramework>
-    <AssemblyName>Folderize</AssemblyName>
-    <RootNamespace>Folderize</RootNamespace>
-    <Product>Folderize</Product>
-    <Title>Folderize</Title>
+    <AssemblyName>BytePeeX</AssemblyName>
+    <RootNamespace>BytePeeX</RootNamespace>
+    <Product>BytePeeX</Product>
+    <Title>BytePeeX</Title>
     <ApplicationIcon>app.ico</ApplicationIcon>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>

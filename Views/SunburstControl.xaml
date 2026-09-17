@@ -1,4 +1,4 @@
-<UserControl x:Class="Folderize.Views.SunburstControl"
+﻿<UserControl x:Class="BytePeeX.Views.SunburstControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -16,7 +16,7 @@
         <Border Grid.Row="0" Background="#1A263C" BorderBrush="#1E293B" BorderThickness="0,0,0,1" Padding="10,6">
             <DockPanel LastChildFill="True">
                 <Button DockPanel.Dock="Left"
-                        Content="▲ Üst Dizin"
+                        Content="{Binding Strings.BtnUpLevel}"
                         Command="{Binding NavigateUpCommand}"
                         Background="#1E293B"
                         Foreground="#94A3B8"
@@ -91,7 +91,7 @@
                                Foreground="#00E5FF"
                                Margin="0,4,0,0"
                                TextAlignment="Center" />
-                    <TextBlock Text="Çift tık: Üst Dizin"
+                    <TextBlock Text="{Binding Strings.DoubleTapUpLevel}"
                                FontSize="10"
                                Foreground="#888888"
                                Margin="0,4,0,0"

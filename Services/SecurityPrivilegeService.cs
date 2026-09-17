@@ -1,8 +1,8 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace Folderize.Services
+namespace BytePeeX.Services
 {
     /// <summary>
     /// Enables Windows Backup and Restore privileges (SeBackupPrivilege, SeRestorePrivilege)

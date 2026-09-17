@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Animation;
 
-namespace Folderize.Views
+namespace BytePeeX.Views
 {
     public partial class SplashScreenWindow : Window
     {
@@ -48,7 +48,7 @@ namespace Folderize.Views
                 (45, "Fiziksel disk sürücüleri taranıyor...", 250),
                 (70, "Yüklü uygulamalar ve dizin mimarisi taranıyor...", 300),
                 (90, "Arayüz teması ve grafik motoru hazırlanıyor...", 200),
-                (100, "Folderize hazır!", 120)
+                (100, "BytePeeX hazır!", 120)
             };
 
             double currentPercent = 0;

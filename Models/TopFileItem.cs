@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Folderize.Models
+namespace BytePeeX.Models
 {
     public class TopFileItem
     {
@@ -14,7 +14,7 @@ namespace Folderize.Models
             get
             {
                 string ext = Path.GetExtension(FullPath);
-                return string.IsNullOrEmpty(ext) ? "[Uzantısız]" : ext.ToLowerInvariant();
+                return string.IsNullOrEmpty(ext) ? Services.LocalizationService.Instance.LabelNoExtension : ext.ToLowerInvariant();
             }
         }
         public long SizeBytes { get; set; }

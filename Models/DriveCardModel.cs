@@ -1,8 +1,8 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace Folderize.Models
+namespace BytePeeX.Models
 {
     public class DriveCardModel : INotifyPropertyChanged
     {
@@ -117,6 +117,7 @@ namespace Folderize.Models
         public string FormattedFree => FileSystemNode.FormatBytes(FreeSizeBytes);
         public string FormattedFreeText => $"{FormattedFree} {(Services.LocalizationService.Instance.IsTurkish ? "boş" : "free")}";
         public string UsageSummary => $"{FormattedUsed} {(Services.LocalizationService.Instance.IsTurkish ? "kullanılan" : "used")} · {FormattedFree} {(Services.LocalizationService.Instance.IsTurkish ? "boş" : "free")}";
+        public string DriveDisplayName => string.Format(Services.LocalizationService.Instance.IsTurkish ? "Sürücü ({0})" : "Drive ({0})", DriveName);
         public string FormattedPercent => $"{UsedPercent:F0}%";
         public string BarBrush => UsedPercent >= 90.0 ? "#EF4444" : "#38BDF8";
 
@@ -128,6 +129,7 @@ namespace Folderize.Models
             OnPropertyChanged(nameof(FormattedFree));
             OnPropertyChanged(nameof(FormattedFreeText));
             OnPropertyChanged(nameof(UsageSummary));
+            OnPropertyChanged(nameof(DriveDisplayName));
             OnPropertyChanged(nameof(FormattedPercent));
             OnPropertyChanged(nameof(BarBrush));
         }

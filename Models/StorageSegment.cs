@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Folderize.Models
+namespace BytePeeX.Models
 {
     public class StorageSegment
     {

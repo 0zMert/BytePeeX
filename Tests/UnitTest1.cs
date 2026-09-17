@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Folderize.Models;
-using Folderize.Services;
-using Folderize.ViewModels;
+using BytePeeX.Models;
+using BytePeeX.Services;
+using BytePeeX.ViewModels;
 using Xunit;
 
 namespace Tests

@@ -1,8 +1,8 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Text.Json;
 
-namespace Folderize.Services
+namespace BytePeeX.Services
 {
     public class SettingsModel
     {
@@ -28,10 +28,19 @@ namespace Folderize.Services
             try
             {
                 string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-                string folder = Path.Combine(appData, "Folderize");
+                string folder = Path.Combine(appData, "BytePeeX");
+                string oldFolder = Path.Combine(appData, "BytePeeX");
                 if (!Directory.Exists(folder))
                 {
-                    Directory.CreateDirectory(folder);
+                    if (Directory.Exists(oldFolder))
+                    {
+                        try { Directory.Move(oldFolder, folder); }
+                        catch { Directory.CreateDirectory(folder); }
+                    }
+                    else
+                    {
+                        Directory.CreateDirectory(folder);
+                    }
                 }
                 _configFilePath = Path.Combine(folder, "config.json");
 

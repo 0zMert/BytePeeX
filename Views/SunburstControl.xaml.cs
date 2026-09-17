@@ -1,13 +1,13 @@
-using System;
+﻿using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using Folderize.Models;
-using Folderize.ViewModels;
+using BytePeeX.Models;
+using BytePeeX.ViewModels;
 
-namespace Folderize.Views
+namespace BytePeeX.Views
 {
     public partial class SunburstControl : UserControl
     {

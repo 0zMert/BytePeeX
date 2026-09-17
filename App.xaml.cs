@@ -1,9 +1,9 @@
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 using System.Windows;
-using Folderize.Views;
+using BytePeeX.Views;
 
-namespace Folderize;
+namespace BytePeeX;
 
 /// <summary>
 /// Interaction logic for App.xaml
@@ -25,7 +25,7 @@ public partial class App : Application
         };
 
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
-        Folderize.Services.SecurityPrivilegeService.EnsureBackupPrivileges();
+        BytePeeX.Services.SecurityPrivilegeService.EnsureBackupPrivileges();
 
         // 1. Show splash screen immediately
         var splash = new SplashScreenWindow();

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -7,10 +7,10 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
-using Folderize.Models;
-using Folderize.ViewModels;
+using BytePeeX.Models;
+using BytePeeX.ViewModels;
 
-namespace Folderize
+namespace BytePeeX
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

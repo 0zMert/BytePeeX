@@ -1,13 +1,13 @@
-# Folderize 🚀
+﻿# BytePeeX 🚀
 **Modern, Hızlı ve Akıllı Disk & Klasör Boyut Analiz Aracı**
 
-Folderize, Windows bilgisayarınızdaki depolama alanını saniyeler içinde tarayan, hangi dosya ve klasörlerin ne kadar yer kapladığını modern ve interaktif grafiklerle görselleştiren açık kaynaklı bir masaüstü uygulamasıdır.
+BytePeeX, Windows bilgisayarınızdaki depolama alanını saniyeler içinde tarayan, hangi dosya ve klasörlerin ne kadar yer kapladığını modern ve interaktif grafiklerle görselleştiren açık kaynaklı bir masaüstü uygulamasıdır.
 
 ---
 
 ## ⚡ Sistem Gereksinimleri & Kurulum
 
-Folderize ultra hafif boyutta (**yalnızca ~1.2 MB**) çalışacak şekilde optimize edilmiştir. Uygulamayı çalıştırabilmek için bilgisayarınızda **.NET 9 Masaüstü Çalışma Zamanı (Desktop Runtime)** bulunmalıdır.
+BytePeeX ultra hafif boyutta (**yalnızca ~1.2 MB**) çalışacak şekilde optimize edilmiştir. Uygulamayı çalıştırabilmek için bilgisayarınızda **.NET 9 Masaüstü Çalışma Zamanı (Desktop Runtime)** bulunmalıdır.
 
 | Gereksinim | Detay |
 | :--- | :--- |
@@ -22,11 +22,11 @@ Folderize ultra hafif boyutta (**yalnızca ~1.2 MB**) çalışacak şekilde opti
 
 ## 📦 Hızlı Başlangıç
 
-1. [Releases](https://github.com/0zMert/Foldarize/releases) sayfasından en güncel paketi indirin:
-   - **`Folderize-v0.4-win-x64-Standalone.zip`**: Bilgisayarınızda .NET 9 yüklü olmasa bile doğrudan çalışır (Önerilen).
-   - **`Folderize-v0.4-win-x64.zip`**: Sisteminde .NET 9 Desktop Runtime kurulu olanlar için ultra hafif sürüm.
+1. [Releases](https://github.com/0zMert/BytePeeX/releases) sayfasından en güncel paketi indirin:
+   - **`BytePeeX-v0.4-win-x64-Standalone.zip`**: Bilgisayarınızda .NET 9 yüklü olmasa bile doğrudan çalışır (Önerilen).
+   - **`BytePeeX-v0.4-win-x64.zip`**: Sisteminde .NET 9 Desktop Runtime kurulu olanlar için ultra hafif sürüm.
 2. Arşivi istediğiniz bir klasöre çıkartın.
-3. **`Folderize.exe`** dosyasına çift tıklayarak uygulamayı başlatın.
+3. **`BytePeeX.exe`** dosyasına çift tıklayarak uygulamayı başlatın.
 
 ---
 
@@ -38,7 +38,7 @@ Uygulamayı başlatmak için:
 - **Yöntem 1 (Mavi ekrandan):** Mavi penceredeki **"Ek bilgi"** *(More info)* linkine tıklayın, ardından sağ altta açılan **"Yine de çalıştır"** *(Run anyway)* butonuna basın.
 - **Yöntem 2 (Dosya Özelliklerinden):** İndirdiğiniz `.zip` veya `.exe` dosyasına **sağ tıklayın ➔ Özellikler (Properties) ➔ En alttaki "Engellemeyi Kaldır" (Unblock) kutucuğunu işaretleyip Tamam** deyin.
 
-> 🔒 *Folderize tamamen açık kaynaklıdır ve güvenlidir. Tüm kaynak kodları, kullanılan algoritmalar ve bileşenler bu GitHub deposu üzerinden şeffaf şekilde incelenebilir.*
+> 🔒 *BytePeeX tamamen açık kaynaklıdır ve güvenlidir. Tüm kaynak kodları, kullanılan algoritmalar ve bileşenler bu GitHub deposu üzerinden şeffaf şekilde incelenebilir.*
 
 ---
 
@@ -64,20 +64,20 @@ Projeyi kaynak koddan derlemek için:
 
 ```powershell
 # Depoyu klonlayın
-git clone https://github.com/0zMert/Foldarize.git
-cd Foldarize
+git clone https://github.com/0zMert/BytePeeX.git
+cd BytePeeX
 
 # Çözümü derleyin
-dotnet build Folderize.sln
+dotnet build BytePeeX.sln
 
 # Testleri çalıştırın
-dotnet test Folderize.sln
+dotnet test BytePeeX.sln
 
 # Hafif tek dosya olarak yayınlayın (.NET 9 yüklü sistemler için ~1.2 MB)
-dotnet publish Folderize.csproj -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -o publish/framework-dependent
+dotnet publish BytePeeX.csproj -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -o publish/framework-dependent
 
 # Bağımsız tek dosya olarak yayınlayın (.NET 9 gerektirmeyen bağımsız paket)
-dotnet publish Folderize.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -o publish/standalone
+dotnet publish BytePeeX.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -o publish/standalone
 ```
 
 ---

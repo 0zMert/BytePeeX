@@ -1,8 +1,8 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace Folderize.Services
+namespace BytePeeX.Services
 {
     /// <summary>
     /// Provides shell file operations such as moving files and folders to the Windows Recycle Bin.

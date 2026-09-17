@@ -1,6 +1,6 @@
-using System;
+﻿using System;
 
-namespace Folderize.Models
+namespace BytePeeX.Models
 {
     public class InstalledAppModel
     {

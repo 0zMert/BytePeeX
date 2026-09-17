@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -12,12 +12,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using Folderize.Common;
-using Folderize.Models;
-using Folderize.Services;
+using BytePeeX.Common;
+using BytePeeX.Models;
+using BytePeeX.Services;
 using Microsoft.Win32;
 
-namespace Folderize.ViewModels
+namespace BytePeeX.ViewModels
 {
     public enum AppViewMode
     {
@@ -34,7 +34,7 @@ namespace Folderize.ViewModels
 
         private string _selectedPath = string.Empty;
         private bool _isScanning;
-        private string _statusText = "Hazır. Lütfen taranacak bir dizin veya sürücü seçin.";
+        private string _statusText = LocalizationService.Instance.StatusInitial;
         private string _currentScanningPath = string.Empty;
         private FileSystemNode? _rootNode;
         private FileSystemNode? _selectedNode;
@@ -428,6 +428,8 @@ namespace Folderize.ViewModels
             OnPropertyChanged(nameof(IsTurkish));
             OnPropertyChanged(nameof(IsEnglish));
             OnPropertyChanged(nameof(Strings));
+            OnPropertyChanged(nameof(TreemapScaleModeText));
+            OnPropertyChanged(nameof(StatusText));
             OnPropertyChanged(nameof(InstalledAppsColNameHeader));
             OnPropertyChanged(nameof(InstalledAppsColPublisherHeader));
             OnPropertyChanged(nameof(InstalledAppsColVersionHeader));
@@ -437,12 +439,26 @@ namespace Folderize.ViewModels
 
             LoadDrivesDirect();
 
+            if (RootNode != null)
+            {
+                SetDrillDownNode(CurrentDrillDownNode ?? RootNode, addToHistory: false);
+                UpdateTopFolders();
+                UpdateExtensionDistribution();
+                UpdateSelectedFolderFiles();
+                if (TopFilesList.Count > 0) PopulateTopFiles();
+                if (LargeFilesList.Count > 0) PopulateLargeFiles();
+            }
+
             if (InstalledApps.Count > 0)
             {
                 var current = InstalledApps.ToList();
                 InstalledApps.Clear();
                 foreach (var app in current) InstalledApps.Add(app);
                 StatusText = string.Format(Strings.AppsFoundFormat, InstalledApps.Count);
+            }
+            else if (string.IsNullOrEmpty(SelectedPath))
+            {
+                StatusText = Strings.StatusInitial;
             }
         }
 
@@ -490,7 +506,7 @@ namespace Folderize.ViewModels
             }
         }
 
-        public string TreemapScaleModeText => UseBalancedTreemapScale ? "⚖ Dengeli Görünüm" : "📏 Gerçek Oran (1:1)";
+        public string TreemapScaleModeText => UseBalancedTreemapScale ? Strings.TreemapScaleBalanced : Strings.TreemapScaleExact;
 
         private string _selectedVisualizationMode = "Treemap";
         public string SelectedVisualizationMode
@@ -1088,7 +1104,7 @@ namespace Folderize.ViewModels
             {
                 TopSegments.Add(new StorageSegment
                 {
-                    Name = "Diğer",
+                    Name = Strings.LabelOther,
                     SizeBytes = otherSize,
                     Percentage = parentSize > 0 ? (double)otherSize / parentSize * 100.0 : 0,
                     ColorHex = "#64748B"
@@ -1152,7 +1168,7 @@ namespace Folderize.ViewModels
                 double pct = totalExtSize > 0 ? (double)otherBytes / totalExtSize * 100.0 : 0;
                 TopExtensions.Add(new FileExtensionSummary
                 {
-                    Extension = "Diğer",
+                    Extension = Strings.LabelOther,
                     FileCount = otherCount,
                     TotalSizeBytes = otherBytes,
                     Percentage = pct,
@@ -1174,7 +1190,7 @@ namespace Folderize.ViewModels
                 if (!child.IsDirectory && !child.IsSummaryFilesNode)
                 {
                     string ext = Path.GetExtension(child.Name);
-                    if (string.IsNullOrEmpty(ext)) ext = "[Uzantısız]";
+                    if (string.IsNullOrEmpty(ext)) ext = Strings.LabelNoExtension;
                     else ext = ext.ToLowerInvariant();
 
                     if (extMap.TryGetValue(ext, out var val))
@@ -1191,7 +1207,7 @@ namespace Folderize.ViewModels
                     foreach (var f in child.Children)
                     {
                         string ext = Path.GetExtension(f.Name);
-                        if (string.IsNullOrEmpty(ext)) ext = "[Uzantısız]";
+                        if (string.IsNullOrEmpty(ext)) ext = Strings.LabelNoExtension;
                         else ext = ext.ToLowerInvariant();
 
                         if (extMap.TryGetValue(ext, out var val))
@@ -1323,7 +1339,7 @@ namespace Folderize.ViewModels
         {
             if (string.IsNullOrWhiteSpace(SelectedPath) || !Directory.Exists(SelectedPath))
             {
-                StatusText = "Geçersiz dizin yolu!";
+                StatusText = Strings.StatusInvalidPath;
                 return;
             }
 
@@ -1333,7 +1349,7 @@ namespace Folderize.ViewModels
             var token = _cancellationTokenSource.Token;
 
             IsScanning = true;
-            StatusText = "Tarama başlatılıyor...";
+            StatusText = Strings.StatusStarting;
             CurrentScanningPath = SelectedPath;
             VisibleNodes.Clear();
             RootNode = null;
@@ -1350,7 +1366,7 @@ namespace Folderize.ViewModels
                 TotalFilesCount = p.TotalFiles;
                 TotalFoldersCount = p.TotalFolders;
                 TotalSizeBytes = p.TotalBytes;
-                StatusText = $"Taranıyor: {p.TotalFiles:N0} dosya ({FileSystemNode.FormatBytes(p.TotalBytes)})";
+                StatusText = string.Format(Strings.StatusScanningFormat, p.TotalFiles, FileSystemNode.FormatBytes(p.TotalBytes));
 
                 // LIVE STREAMING: Show root and top folders right away!
                 if (p.RootNode != null)
@@ -1428,13 +1444,13 @@ namespace Folderize.ViewModels
 
                     if (token.IsCancellationRequested)
                     {
-                        StatusText = $"Tarama durduruldu (taranan kısım): {FormattedTotalSize}, {TotalFilesCount:N0} dosya, {TotalFoldersCount:N0} klasör.";
-                        CurrentScanningPath = "Durduruldu";
+                        StatusText = string.Format(Strings.StatusStoppedFormat, FormattedTotalSize, TotalFilesCount, TotalFoldersCount);
+                        CurrentScanningPath = Strings.IsTurkish ? "Durduruldu" : "Stopped";
                     }
                     else
                     {
-                        StatusText = $"Tarama tamamlandı ({stopwatch.Elapsed.TotalSeconds:F1} sn). Toplam: {FormattedTotalSize}, {TotalFilesCount:N0} dosya, {TotalFoldersCount:N0} klasör.";
-                        CurrentScanningPath = "Hazır";
+                        StatusText = string.Format(Strings.StatusCompleteFormat, stopwatch.Elapsed.TotalSeconds, FormattedTotalSize, TotalFilesCount, TotalFoldersCount);
+                        CurrentScanningPath = Strings.StatusReady;
                     }
                 }
             }
@@ -1442,18 +1458,18 @@ namespace Folderize.ViewModels
             {
                 if (RootNode != null)
                 {
-                    StatusText = $"Tarama durduruldu (taranan kısım): {FormattedTotalSize}, {TotalFilesCount:N0} dosya, {TotalFoldersCount:N0} klasör.";
+                    StatusText = string.Format(Strings.StatusStoppedFormat, FormattedTotalSize, TotalFilesCount, TotalFoldersCount);
                 }
                 else
                 {
-                    StatusText = "Tarama kullanıcı tarafından durduruldu.";
+                    StatusText = Strings.StatusStoppedByUser;
                 }
-                CurrentScanningPath = "Durduruldu";
+                CurrentScanningPath = Strings.IsTurkish ? "Durduruldu" : "Stopped";
             }
             catch (Exception ex)
             {
-                StatusText = $"Tarama sırasında hata oluştu: {ex.Message}";
-                CurrentScanningPath = "Hata";
+                StatusText = string.Format(Strings.StatusScanError, ex.Message);
+                CurrentScanningPath = Strings.IsTurkish ? "Hata" : "Error";
             }
             finally
             {
@@ -1614,7 +1630,7 @@ namespace Folderize.ViewModels
                 UpdateSelectedFolderFiles();
                 LoadDrivesDirect();
 
-                StatusText = $"{successCount} öğe ({FileSystemNode.FormatBytes(deletedBytes)}) Geri Dönüşüm Kutusu'na taşındı.";
+                StatusText = string.Format(Strings.StatusMovedToRecycleBin, successCount, FileSystemNode.FormatBytes(deletedBytes));
             }
 
             if (failCount > 0)

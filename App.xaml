@@ -1,7 +1,7 @@
-<Application x:Class="Folderize.App"
+﻿<Application x:Class="BytePeeX.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:Folderize">
+             xmlns:local="clr-namespace:BytePeeX">
     <Application.Resources>
         <SolidColorBrush x:Key="WindowBackground" Color="#0B132B" />
         <SolidColorBrush x:Key="SidebarBackground" Color="#0F172A" />

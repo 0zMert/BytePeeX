@@ -1,12 +1,12 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
-using Folderize.Models;
+using BytePeeX.Models;
 using Microsoft.Win32;
 
-namespace Folderize.Views
+namespace BytePeeX.Views
 {
     /// <summary>
     /// Interaction logic for FolderPickerWindow.xaml
@@ -14,9 +14,11 @@ namespace Folderize.Views
     public partial class FolderPickerWindow : Window
     {
         public string? SelectedPath { get; private set; }
+        public Services.LocalizationService Strings => Services.LocalizationService.Instance;
 
         public FolderPickerWindow(IEnumerable<DriveCardModel> drives, string? currentPath = null)
         {
+            DataContext = this;
             InitializeComponent();
             DrivesItemsControl.ItemsSource = drives;
         }

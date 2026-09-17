@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 
-namespace Folderize.Models
+namespace BytePeeX.Models
 {
     public class FileSystemNode : INotifyPropertyChanged
     {

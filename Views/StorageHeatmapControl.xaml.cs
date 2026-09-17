@@ -1,12 +1,12 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Folderize.Models;
-using Folderize.ViewModels;
+using BytePeeX.Models;
+using BytePeeX.ViewModels;
 
-namespace Folderize.Views
+namespace BytePeeX.Views
 {
     public partial class StorageHeatmapControl : UserControl
     {

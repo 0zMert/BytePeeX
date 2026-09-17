@@ -1,9 +1,9 @@
-<UserControl x:Class="Folderize.Views.StorageHeatmapControl"
+﻿<UserControl x:Class="BytePeeX.Views.StorageHeatmapControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:models="clr-namespace:Folderize.Models"
+             xmlns:models="clr-namespace:BytePeeX.Models"
              mc:Ignorable="d" 
              d:DesignHeight="380" d:DesignWidth="550"
              Background="Transparent">
@@ -30,7 +30,7 @@
 
                 <!-- Up Button -->
                 <Button DockPanel.Dock="Right"
-                        Content="▲ Üst Dizin"
+                        Content="{Binding Strings.BtnUpLevel}"
                         Command="{Binding NavigateUpCommand}"
                         Background="#1E293B" Foreground="#94A3B8" BorderBrush="#334155" BorderThickness="1"
                         Padding="8,2" FontSize="11" Cursor="Hand">
