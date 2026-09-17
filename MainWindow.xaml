@@ -250,9 +250,19 @@
                                             <!-- Crisp Vector Icon: HDD / USB -->
                                             <Path Grid.Column="0" Fill="#38BDF8" Width="15" Height="15" Stretch="Uniform" Margin="0,0,8,0" VerticalAlignment="Center"
                                                   Data="M2,4H22V20H2V4M4,6V18H20V6H4M6,15A1,1 0 0,0 5,16A1,1 0 0,0 6,17A1,1 0 0,0 7,16A1,1 0 0,0 6,15M10,15A1,1 0 0,0 9,16A1,1 0 0,0 10,17A1,1 0 0,0 11,16A1,1 0 0,0 10,15Z" />
-                                            <StackPanel Grid.Column="1">
-                                                <TextBlock Text="{Binding DriveName}" FontWeight="Bold" Foreground="#FFFFFF" FontSize="11" />
-                                                <TextBlock Text="{Binding FormattedUsed, StringFormat='{}{0} used'}" Foreground="#94A3B8" FontSize="10" />
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <!-- Drive Name and Free Space -->
+                                                <DockPanel LastChildFill="False">
+                                                    <TextBlock Text="{Binding DriveName}" FontWeight="Bold" Foreground="#FFFFFF" FontSize="11" />
+                                                    <TextBlock DockPanel.Dock="Right" Text="{Binding FormattedFreeText}" Foreground="#38BDF8" FontSize="10" FontWeight="SemiBold" />
+                                                </DockPanel>
+                                                <!-- Mini Usage Bar -->
+                                                <Border Height="3" Background="#1E293B" CornerRadius="1.5" Margin="0,3,0,2">
+                                                    <Border HorizontalAlignment="Left" Background="#38BDF8" CornerRadius="1.5"
+                                                            Width="{Binding UsedPercent, Converter={StaticResource PercentToWidthConverter}}" />
+                                                </Border>
+                                                <!-- Used Space -->
+                                                <TextBlock Text="{Binding FormattedUsed, StringFormat='{}{0} used'}" Foreground="#94A3B8" FontSize="9" />
                                             </StackPanel>
                                         </Grid>
                                     </Button>

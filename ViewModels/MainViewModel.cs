@@ -71,8 +71,8 @@ namespace Folderize.ViewModels
             SelectedPath = "C:\\";
             AvailableDrives = new List<string> { "C:\\" };
 
-            // Non-blocking asynchronous drive scan so the window opens instantly (<100ms)
-            _ = LoadDrivesAsync();
+            // Load Windows drives directly so they appear on screen immediately without delay
+            LoadDrivesDirect();
 
             SelectFolderCommand = new RelayCommand(SelectFolder);
             StartScanCommand = new RelayCommand(async () => await StartScanAsync(), () => !IsScanning && !string.IsNullOrWhiteSpace(SelectedPath));
@@ -604,48 +604,44 @@ namespace Folderize.ViewModels
         public ICommand SelectBottomTabCommand { get; }
         public ICommand ToggleTreemapScaleCommand { get; }
 
-        private async Task LoadDrivesAsync()
+        public void LoadDrivesDirect()
         {
-            var result = await Task.Run(() =>
+            var drivesList = new List<string>();
+            var cardsList = new List<DriveCardModel>();
+            try
             {
-                var drivesList = new List<string>();
-                var cardsList = new List<DriveCardModel>();
-                try
-                {
-                    var readyDrives = DriveInfo.GetDrives()
-                        .Where(d => d.IsReady && (d.DriveType == DriveType.Fixed || d.DriveType == DriveType.Removable))
-                        .ToList();
+                var readyDrives = DriveInfo.GetDrives()
+                    .Where(d => d.IsReady && (d.DriveType == DriveType.Fixed || d.DriveType == DriveType.Removable))
+                    .ToList();
 
-                    foreach (var d in readyDrives)
-                    {
-                        drivesList.Add(d.Name);
-                        long total = d.TotalSize;
-                        long free = d.TotalFreeSpace;
-                        long used = total - free;
-                        cardsList.Add(new DriveCardModel
-                        {
-                            DriveName = d.Name.TrimEnd('\\'),
-                            TotalSizeBytes = total,
-                            UsedSizeBytes = used,
-                            FreeSizeBytes = free,
-                            UsedPercent = total > 0 ? (double)used / total * 100.0 : 0,
-                            IsRemovable = d.DriveType == DriveType.Removable,
-                            IsSelected = d.Name.Equals(SelectedPath, StringComparison.OrdinalIgnoreCase)
-                        });
-                    }
-                }
-                catch
+                foreach (var d in readyDrives)
                 {
-                    drivesList.Add("C:\\");
+                    drivesList.Add(d.Name);
+                    long total = d.TotalSize;
+                    long free = d.TotalFreeSpace;
+                    long used = total - free;
+                    cardsList.Add(new DriveCardModel
+                    {
+                        DriveName = d.Name.TrimEnd('\\'),
+                        TotalSizeBytes = total,
+                        UsedSizeBytes = used,
+                        FreeSizeBytes = free,
+                        UsedPercent = total > 0 ? (double)used / total * 100.0 : 0,
+                        IsRemovable = d.DriveType == DriveType.Removable,
+                        IsSelected = d.Name.Equals(SelectedPath, StringComparison.OrdinalIgnoreCase)
+                    });
                 }
-                return (drivesList, cardsList);
-            });
+            }
+            catch
+            {
+                drivesList.Add("C:\\");
+            }
 
             AvailableDrives.Clear();
-            AvailableDrives.AddRange(result.drivesList);
+            AvailableDrives.AddRange(drivesList);
 
             DriveCards.Clear();
-            foreach (var card in result.cardsList)
+            foreach (var card in cardsList)
             {
                 DriveCards.Add(card);
             }
@@ -1239,28 +1235,20 @@ namespace Folderize.ViewModels
             _isTreeUpdating = true;
             try
             {
-                // Find all nodes in VisibleNodes that have children and are NOT yet expanded
-                var unexpandedVisible = VisibleNodes
-                    .Where(n => n.HasChildren && !n.IsExpanded)
+                // Find all directory nodes in VisibleNodes that have children and are NOT yet expanded
+                // Exclude summary file nodes ([XX Files]) and non-directories so files don't block folder expansion!
+                var unexpandedVisibleFolders = VisibleNodes
+                    .Where(n => n.IsDirectory && !n.IsSummaryFilesNode && n.HasChildren && !n.IsExpanded)
                     .ToList();
 
-                if (unexpandedVisible.Count == 0)
+                if (unexpandedVisibleFolders.Count == 0)
                 {
-                    // Everything currently visible is already expanded
                     return;
                 }
 
-                // Minimum level among visible nodes with children that are not yet expanded
-                int nextLevel = unexpandedVisible.Min(n => n.Level);
-
-                var candidates = unexpandedVisible
-                    .Where(n => n.Level == nextLevel)
-                    .Take(300)
-                    .ToList();
-
-                if (candidates.Count == 0) return;
-
-                foreach (var node in candidates)
+                // Expand all currently visible unexpanded folders across all active branches
+                // Even if some branches have already reached maximum depth, all other branches with subdirectories continue expanding!
+                foreach (var node in unexpandedVisibleFolders.Take(500))
                 {
                     node.IsExpanded = true;
                 }
@@ -1280,15 +1268,15 @@ namespace Folderize.ViewModels
             _isTreeUpdating = true;
             try
             {
-                var expandedNodes = VisibleNodes
-                    .Where(n => n.IsExpanded && n.HasChildren && n != RootNode)
+                var expandedFolders = VisibleNodes
+                    .Where(n => n.IsExpanded && n.HasChildren && n != RootNode && n.IsDirectory && !n.IsSummaryFilesNode)
                     .ToList();
 
-                if (expandedNodes.Count == 0) return;
+                if (expandedFolders.Count == 0) return;
 
-                int maxLevel = expandedNodes.Max(n => n.Level);
+                int maxLevel = expandedFolders.Max(n => n.Level);
 
-                foreach (var node in expandedNodes.Where(n => n.Level == maxLevel))
+                foreach (var node in expandedFolders.Where(n => n.Level == maxLevel))
                 {
                     node.IsExpanded = false;
                 }
