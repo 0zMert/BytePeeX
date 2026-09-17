@@ -5,10 +5,11 @@
     <security>
       <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
         <!-- 
-          "highestAvailable" prompts for UAC elevation if the user is an Administrator,
-          allowing access to protected system folders (System Volume Information, etc.)
+          "asInvoker" opens with the same privileges as the parent process.
+          Users can elevate to Administrator via the in-app button when needed
+          (e.g. to scan protected system folders like System Volume Information).
         -->
-        <requestedExecutionLevel level="highestAvailable" uiAccess="false" />
+        <requestedExecutionLevel level="asInvoker" uiAccess="false" />
       </requestedPrivileges>
     </security>
   </trustInfo>
