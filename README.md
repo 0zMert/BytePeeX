@@ -23,8 +23,8 @@ Folderize ultra hafif boyutta (**yalnızca ~1.2 MB**) çalışacak şekilde opti
 ## 📦 Hızlı Başlangıç
 
 1. [Releases](https://github.com/0zMert/Foldarize/releases) sayfasından en güncel paketi indirin:
-   - **`Folderize-v0.3-win-x64-Standalone.zip`**: Bilgisayarınızda .NET 9 yüklü olmasa bile doğrudan çalışır (Önerilen).
-   - **`Folderize-v0.3-win-x64.zip`**: Sisteminde .NET 9 Desktop Runtime kurulu olanlar için ultra hafif sürüm.
+   - **`Folderize-v0.4-win-x64-Standalone.zip`**: Bilgisayarınızda .NET 9 yüklü olmasa bile doğrudan çalışır (Önerilen).
+   - **`Folderize-v0.4-win-x64.zip`**: Sisteminde .NET 9 Desktop Runtime kurulu olanlar için ultra hafif sürüm.
 2. Arşivi istediğiniz bir klasöre çıkartın.
 3. **`Folderize.exe`** dosyasına çift tıklayarak uygulamayı başlatın.
 
@@ -44,14 +44,17 @@ Uygulamayı başlatmak için:
 
 ## ✨ Temel Özellikler
 
-- 🏎️ **Işık Hızında Disk Tarama**: Asenkron çoklu iş parçacıklı motoruyla yüzbinlerce dosyayı saniyeler içinde analiz eder.
+- 🏎️ **Işık Hızında Disk Tarama**: Asenkron çoklu iş parçacıklı motoru ve Win32 FindFirstFileEx entegrasyonuyla yüzbinlerce dosyayı saniyeler içinde analiz eder.
+- 🛡️ **Gelişmiş Çekirdek & Yedekleme Semantiği (SeBackupPrivilege)**: Win32 `FILE_FLAG_BACKUP_SEMANTICS` çekirdek seviyesi erişim sayesinde standart kullanıcıların erişemediği korumalı sistem klasörlerini (`System Volume Information`, gölge kopyalar vb.) eksiksiz tarar.
+- 🗑️ **Güvenli Silme & Geri Dönüşüm Kutusu Entegrasyonu**: Ağaç tablosunda seçili tekli veya çoklu dosya/klasörleri sağ tık menüsü veya <kbd>Del</kbd> tuşuyla onay alarak doğrudan Windows Geri Dönüşüm Kutusu'na (Recycle Bin) taşır. Canlı ağaç boyutlarını, ebeveynleri ve grafikleri anında günceller.
+- ⏱️ **5 Saniyede Bir Canlı Sürücü Takibi**: Sol alttaki yerel sürücü kartları arka planda her 5 saniyede bir milisaniyelik Win32 API ile gerçek boş/dolu alan durumunu kesintisiz olarak günceller.
 - 📊 **3 Farklı İnteraktif Görselleştirme**:
   - **Treemap (Ağaç Haritası)**: Klasör ve dosyaların diskteki ağırlığını alan büyüklükleriyle gösterir.
   - **Sunburst (Güneş Işını / Katmanlı Halka)**: Klasör hiyerarşisini katman katman dairesel olarak keşfetmenizi sağlar.
   - **Donut Grafiği**: Dosya uzantılarına (.mp4, .zip, .dll vb.) göre disk kullanım dağılımını gösterir.
-- 📂 **Fluent Dosya Gezgini**: Ağaç görünümü üzerinde akıllı seviye genişletme (katman katman veya tümünü açma), dosya/klasör silme, Explorer'da açma ve dosya türüne göre hızlı filtreleme.
+- 📂 **Fluent Dosya Gezgini**: Ağaç görünümü üzerinde akıllı seviye genişletme (katman katman veya tümünü açma), Explorer'da açma, yolu kopyalama ve dosya türüne göre hızlı filtreleme.
 - 💾 **Sürücü & Sistem Görünümü**: Tüm yerel sürücülerin doluluk oranları, büyük dosyalar listesi ve kurulu uygulamalar analizi.
-- 🎨 **Modern Windows 11 Teması**: Fluent Design ilkelerine uygun şık koyu tema (Dark Mode) ve akıcı animasyonlar.
+- 🎨 **Modern Windows 11 Teması**: Fluent Design ilkelerine uygun şık koyu tema (Dark Mode), yüksek kontrastlı seçim satırları ve akıcı animasyonlar.
 
 ---
 
@@ -70,8 +73,11 @@ dotnet build Folderize.sln
 # Testleri çalıştırın
 dotnet test Folderize.sln
 
-# Hafif tek dosya olarak yayınlayın
-dotnet publish Folderize.csproj -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -o release
+# Hafif tek dosya olarak yayınlayın (.NET 9 yüklü sistemler için ~1.2 MB)
+dotnet publish Folderize.csproj -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -o publish/framework-dependent
+
+# Bağımsız tek dosya olarak yayınlayın (.NET 9 gerektirmeyen bağımsız paket)
+dotnet publish Folderize.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -o publish/standalone
 ```
 
 ---

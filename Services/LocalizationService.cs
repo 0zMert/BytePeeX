@@ -150,6 +150,8 @@ namespace Folderize.Services
         public string AdminActive => IsTurkish ? "✓ Aktif (Yönetici)" : "✓ Active (Admin)";
         public string AdminBadge => IsTurkish ? "YÖNETİCİ" : "ADMIN";
         public string CloseBtn => IsTurkish ? "Kapat" : "Close";
+        public string SaveSettingsBtn => IsTurkish ? "Ayarları Kaydet" : "Save Settings";
+        public string SettingsSavedNotice => IsTurkish ? "✓ Seçili ayarlar başarıyla kaydedildi" : "✓ Selected settings saved successfully";
 
         // Status Bar
         public string StatusReady => IsTurkish ? "Hazır" : "Ready";

@@ -285,6 +285,24 @@
             </Setter>
         </Style>
 
+        <!-- Drive Mini Progress Bar Style (Responsive & Proportionate) -->
+        <Style x:Key="DriveMiniProgressBarStyle" TargetType="ProgressBar">
+            <Setter Property="Height" Value="3" />
+            <Setter Property="Background" Value="#1E293B" />
+            <Setter Property="Foreground" Value="#38BDF8" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ProgressBar">
+                        <Grid x:Name="PART_Track">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="1.5" />
+                            <Border x:Name="PART_Indicator" Background="{TemplateBinding Foreground}" CornerRadius="1.5" HorizontalAlignment="Left" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- Expander Toggle Button Style (Fixes closure bug with OneWay binding) -->
         <Style x:Key="NodeExpanderButtonStyle" TargetType="ToggleButton">
             <Setter Property="Width" Value="16" />
@@ -343,7 +361,7 @@
                     <Image Source="Resources/icon_32.png" Width="28" Height="28" Margin="0,0,10,0" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality" />
                     <TextBlock Text="Folderize" FontWeight="Bold" FontSize="16" Foreground="#FFFFFF" VerticalAlignment="Center" FontFamily="Segoe UI" />
                     <Border Background="#1E293B" BorderBrush="#334155" BorderThickness="1" CornerRadius="4" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="v0.3" FontSize="10" Foreground="#38BDF8" FontWeight="Bold" />
+                        <TextBlock Text="v0.4" FontSize="10" Foreground="#38BDF8" FontWeight="Bold" />
                     </Border>
                     <Border Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,1" Margin="6,0,0,0" VerticalAlignment="Center"
                             Visibility="{Binding IsRunningAsAdmin, Converter={StaticResource BoolToVisibility}}"
@@ -395,6 +413,19 @@
                             ToolTip="{Binding Strings.RescanToolTip}">
                         <Path Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Width="12" Height="12" Stretch="Uniform"
                               Data="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" />
+                    </Button>
+
+                    <!-- Run As Admin Quick Button (Shown only if not already running as admin) -->
+                    <Button Command="{Binding RestartAsAdminCommand}"
+                            Visibility="{Binding IsRunningAsAdmin, Converter={StaticResource InvertedBoolToVisibility}}"
+                            ToolTip="Korumalı sistem klasörlerini (System Volume Information vb.) okuyabilmek için Yönetici olarak yeniden başlatır"
+                            Background="#854D0E" Foreground="#FEF08A" BorderBrush="#CA8A04" BorderThickness="1"
+                            Padding="8,4" Margin="6,0,0,0" Cursor="Hand" FontWeight="SemiBold">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Path Fill="#FACC15" Width="11" Height="11" Stretch="Uniform" Margin="0,0,5,0"
+                                  Data="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,7A2,2 0 0,1 14,9A2,2 0 0,1 12,11A2,2 0 0,1 10,9A2,2 0 0,1 12,7M12,13C13.56,13 16,13.78 16,15V17H8V15C8,13.78 10.44,13 12,13Z" />
+                            <TextBlock Text="🛡️ Yönetici Moduna Geç" FontSize="11" VerticalAlignment="Center" />
+                        </StackPanel>
                     </Button>
                 </StackPanel>
 
@@ -485,11 +516,13 @@
                                                     <TextBlock Text="{Binding DriveName}" FontWeight="Bold" Foreground="#FFFFFF" FontSize="11" />
                                                     <TextBlock DockPanel.Dock="Right" Text="{Binding FormattedFreeText}" Foreground="#38BDF8" FontSize="10" FontWeight="SemiBold" />
                                                 </DockPanel>
-                                                <!-- Mini Usage Bar -->
-                                                <Border Height="3" Background="#1E293B" CornerRadius="1.5" Margin="0,3,0,2">
-                                                    <Border HorizontalAlignment="Left" Background="#38BDF8" CornerRadius="1.5"
-                                                            Width="{Binding UsedPercent, Converter={StaticResource PercentToWidthConverter}}" />
-                                                </Border>
+                                                <!-- Mini Usage Bar (Responsive & Proportionate) -->
+                                                <ProgressBar Style="{StaticResource DriveMiniProgressBarStyle}"
+                                                             Value="{Binding UsedPercent}"
+                                                             Foreground="{Binding BarBrush}"
+                                                             Minimum="0"
+                                                             Maximum="100"
+                                                             Margin="0,3,0,2" />
                                                 <!-- Used Space -->
                                                 <TextBlock Text="{Binding FormattedUsed, StringFormat='{}{0} used'}" Foreground="#94A3B8" FontSize="9" />
                                             </StackPanel>
@@ -606,9 +639,15 @@
                                                 </Style>
                                             </Button.Resources>
                                         </Button>
-                                        <Button Content="{Binding Strings.ExpandAll, StringFormat='⊞ {0}'}" Command="{Binding ExpandAllCommand}"
-                                                ToolTip="Tüm seviyeleri genişletir (güvenli sınırla)"
-                                                Background="Transparent" Foreground="#60A5FA" BorderThickness="0" Cursor="Hand" Margin="0,0,8,0" FontSize="11" />
+                                        <Button Content="{Binding ExpandAllButtonText}" Command="{Binding ExpandAllCommand}"
+                                                ToolTip="{Binding ExpandAllToolTip}"
+                                                Background="#1E293B" Foreground="#60A5FA" BorderThickness="1" BorderBrush="#2563EB" Padding="7,3" Cursor="Hand" Margin="0,0,8,0" FontSize="11">
+                                            <Button.Resources>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="CornerRadius" Value="4"/>
+                                                </Style>
+                                            </Button.Resources>
+                                        </Button>
                                         <Button Content="{Binding Strings.CollapseAll, StringFormat='⊟ {0}'}" Command="{Binding CollapseAllCommand}"
                                                 ToolTip="Tüm alt dalları kapatıp kök dizine döner"
                                                 Background="Transparent" Foreground="#94A3B8" BorderThickness="0" Cursor="Hand" FontSize="11" />
@@ -617,15 +656,41 @@
 
                                 <!-- Tree Table ListView -->
                                 <ListView Grid.Row="1"
+                                          x:Name="TreeListView"
                                           ItemsSource="{Binding VisibleNodes}"
                                           SelectedItem="{Binding SelectedNode, Mode=TwoWay}"
+                                          SelectionMode="Extended"
                                           Background="Transparent"
                                           BorderThickness="0"
                                           ScrollViewer.HorizontalScrollBarVisibility="Auto"
                                           ScrollViewer.VerticalScrollBarVisibility="Auto"
                                           VirtualizingStackPanel.IsVirtualizing="True"
                                           VirtualizingStackPanel.VirtualizationMode="Recycling"
-                                          MouseDoubleClick="ListView_MouseDoubleClick">
+                                          MouseDoubleClick="ListView_MouseDoubleClick"
+                                          KeyDown="TreeListView_KeyDown">
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">
+                                            <EventSetter Event="PreviewMouseRightButtonDown" Handler="ListViewItem_PreviewMouseRightButtonDown" />
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                    <ListView.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="🗑️ Geri Dönüşüm Kutusuna Gönder (Sil)"
+                                                      InputGestureText="Del"
+                                                      Command="{Binding DeleteSelectedNodesCommand}"
+                                                      CommandParameter="{Binding SelectedItems, ElementName=TreeListView}"
+                                                      Foreground="#EF4444" FontWeight="SemiBold" />
+                                            <Separator />
+                                            <MenuItem Header="📂 Dosya Gezgini ile Aç"
+                                                      Command="{Binding OpenInExplorerCommand}"
+                                                      CommandParameter="{Binding SelectedNode.FullPath}"
+                                                      Foreground="#E2E8F0" />
+                                            <MenuItem Header="📋 Yolu Kopyala"
+                                                      Command="{Binding CopyPathCommand}"
+                                                      CommandParameter="{Binding SelectedNode.FullPath}"
+                                                      Foreground="#E2E8F0" />
+                                        </ContextMenu>
+                                    </ListView.ContextMenu>
                                     <ListView.View>
                                         <GridView>
                                             <!-- Name Column with Hierarchy Indent & Expand Toggle -->
@@ -783,6 +848,32 @@
                                             </Button.Resources>
                                             <TextBlock Text="☀️ Sunburst (Halka)" />
                                         </Button>
+
+                                        <!-- Heatmap Button (Modern Storage Tiles / Heatmap) -->
+                                        <Button Command="{Binding SelectChartModeCommand}" CommandParameter="Heatmap"
+                                                Cursor="Hand" Padding="8,3" Margin="6,0,0,0" FontSize="11" FontWeight="SemiBold">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Background" Value="#1E293B" />
+                                                    <Setter Property="Foreground" Value="#94A3B8" />
+                                                    <Setter Property="BorderBrush" Value="#334155" />
+                                                    <Setter Property="BorderThickness" Value="1" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsHeatmapChartSelected}" Value="True">
+                                                            <Setter Property="Background" Value="#2D1217" />
+                                                            <Setter Property="Foreground" Value="#EF4444" />
+                                                            <Setter Property="BorderBrush" Value="#EF4444" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                            <Button.Resources>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="CornerRadius" Value="4" />
+                                                </Style>
+                                            </Button.Resources>
+                                            <TextBlock Text="🔥 Isı Haritası (Kartlar)" />
+                                        </Button>
                                     </DockPanel>
                                 </Border>
 
@@ -813,6 +904,19 @@
                                             </Style>
                                         </views:SunburstControl.Style>
                                     </views:SunburstControl>
+
+                                    <views:StorageHeatmapControl DataContext="{Binding}">
+                                        <views:StorageHeatmapControl.Style>
+                                            <Style TargetType="views:StorageHeatmapControl">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsHeatmapChartSelected}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </views:StorageHeatmapControl.Style>
+                                    </views:StorageHeatmapControl>
                                 </Grid>
                             </Grid>
                         </Border>
@@ -1631,10 +1735,39 @@
                                 </DockPanel>
                             </Border>
 
-                            <!-- Close Button -->
-                            <Button Content="{Binding Strings.CloseBtn}" Command="{Binding ToggleSettingsCommand}"
-                                    Background="#334155" Foreground="#FFFFFF" BorderThickness="0"
-                                    Padding="0,8" Cursor="Hand" FontWeight="SemiBold" />
+                            <!-- Notification pill for "Settings Saved" -->
+                            <Border Background="#0C281F" BorderBrush="#059669" BorderThickness="1" CornerRadius="6" Padding="10,6" Margin="0,0,0,12"
+                                    HorizontalAlignment="Center"
+                                    Visibility="{Binding IsSettingsSavedNoticeVisible, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock Text="{Binding Strings.SettingsSavedNotice}" Foreground="#34D399" FontWeight="SemiBold" FontSize="11" />
+                            </Border>
+
+                            <!-- Action Buttons: Save Settings & Close -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" Content="{Binding Strings.SaveSettingsBtn}" Command="{Binding SaveSettingsCommand}"
+                                        Background="#2563EB" Foreground="#FFFFFF" BorderThickness="0"
+                                        Padding="0,8" Cursor="Hand" FontWeight="SemiBold">
+                                    <Button.Resources>
+                                        <Style TargetType="Border">
+                                            <Setter Property="CornerRadius" Value="4" />
+                                        </Style>
+                                    </Button.Resources>
+                                </Button>
+                                <Button Grid.Column="2" Content="{Binding Strings.CloseBtn}" Command="{Binding ToggleSettingsCommand}"
+                                        Background="#334155" Foreground="#FFFFFF" BorderThickness="0"
+                                        Padding="0,8" Cursor="Hand" FontWeight="SemiBold">
+                                    <Button.Resources>
+                                        <Style TargetType="Border">
+                                            <Setter Property="CornerRadius" Value="4" />
+                                        </Style>
+                                    </Button.Resources>
+                                </Button>
+                            </Grid>
                         </StackPanel>
                     </Border>
                 </Grid>

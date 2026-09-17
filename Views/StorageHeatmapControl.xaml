@@ -1,0 +1,144 @@
+<UserControl x:Class="Folderize.Views.StorageHeatmapControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:models="clr-namespace:Folderize.Models"
+             mc:Ignorable="d" 
+             d:DesignHeight="380" d:DesignWidth="550"
+             Background="Transparent">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Top Header & Breadcrumb Toolbar -->
+        <Border Grid.Row="0" Margin="10,6,10,6">
+            <DockPanel LastChildFill="False">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Path Fill="#F59E0B" Width="14" Height="14" Stretch="Uniform" Margin="0,0,6,0"
+                          Data="M13.5,5.5C14.58,6.8 15,8.13 15,9.5C15,11.5 13.5,13.2 12,14.5C10.5,13.2 9,11.5 9,9.5C9,8.13 9.42,6.8 10.5,5.5C9.07,6.88 8,8.58 8,10.5C8,13.54 10.46,16 13.5,16C16.54,16 19,13.54 19,10.5C19,8.58 17.93,6.88 16.5,5.5M12,2C12,2 8,6.5 8,11A4,4 0 0,0 12,15A4,4 0 0,0 16,11C16,6.5 12,2 12,2Z" />
+                    <TextBlock Text="{Binding CurrentDrillDownNode.Name}" FontWeight="Bold" FontSize="13" Foreground="#FFFFFF" />
+                    <TextBlock Text="{Binding CurrentDrillDownNode.FormattedSize, StringFormat=' ({0})'}" FontWeight="SemiBold" FontSize="13" Foreground="#F59E0B" Margin="4,0,0,0" />
+                </StackPanel>
+
+                <!-- Up Button -->
+                <Button DockPanel.Dock="Right"
+                        Content="▲ Üst Dizin"
+                        Command="{Binding NavigateUpCommand}"
+                        Background="#1E293B" Foreground="#94A3B8" BorderBrush="#334155" BorderThickness="1"
+                        Padding="8,2" FontSize="11" Cursor="Hand">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="4"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+
+                <!-- Heatmap Legend -->
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0">
+                    <Border Background="#EF4444" Width="8" Height="8" CornerRadius="4" Margin="0,0,3,0" />
+                    <TextBlock Text=">10GB" Foreground="#94A3B8" FontSize="10" Margin="0,0,8,0" />
+
+                    <Border Background="#F97316" Width="8" Height="8" CornerRadius="4" Margin="0,0,3,0" />
+                    <TextBlock Text="1-10GB" Foreground="#94A3B8" FontSize="10" Margin="0,0,8,0" />
+
+                    <Border Background="#EAB308" Width="8" Height="8" CornerRadius="4" Margin="0,0,3,0" />
+                    <TextBlock Text=">250MB" Foreground="#94A3B8" FontSize="10" Margin="0,0,8,0" />
+
+                    <Border Background="#38BDF8" Width="8" Height="8" CornerRadius="4" Margin="0,0,3,0" />
+                    <TextBlock Text="&lt;250MB" Foreground="#94A3B8" FontSize="10" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- Scrollable Heatmap Tile Cards Grid -->
+        <Border Grid.Row="1" Background="#0A1124" CornerRadius="6" Margin="6" Padding="6" ClipToBounds="True">
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                <ItemsControl x:Name="ItemsList">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type models:FileSystemNode}">
+                            <Border Width="235" Margin="4" Padding="10" CornerRadius="8"
+                                    Background="{Binding HeatBackground}"
+                                    BorderBrush="{Binding HeatColor}"
+                                    BorderThickness="1"
+                                    Cursor="Hand"
+                                    MouseLeftButtonUp="Card_MouseLeftButtonUp">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Opacity" Value="0.9" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Top Row: Icon + Name + Badge -->
+                                    <DockPanel Grid.Row="0" LastChildFill="True" Margin="0,0,0,6">
+                                        <!-- Badge on right -->
+                                        <Border DockPanel.Dock="Right" Background="#20FFFFFF" CornerRadius="4" Padding="5,2" VerticalAlignment="Center" Margin="4,0,0,0">
+                                            <TextBlock Text="{Binding HeatBadgeText}" Foreground="{Binding HeatColor}" FontSize="9" FontWeight="Bold" />
+                                        </Border>
+
+                                        <!-- Folder/File Icon -->
+                                        <Path DockPanel.Dock="Left" Fill="{Binding HeatColor}" Width="14" Height="14" Stretch="Uniform" Margin="0,0,6,0" VerticalAlignment="Center">
+                                            <Path.Style>
+                                                <Style TargetType="Path">
+                                                    <Setter Property="Data" Value="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsDirectory}" Value="False">
+                                                            <Setter Property="Data" Value="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Path.Style>
+                                        </Path>
+
+                                        <!-- Node Name -->
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Foreground="#FFFFFF" FontSize="11" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                    </DockPanel>
+
+                                    <!-- Size and Percent -->
+                                    <DockPanel Grid.Row="1" LastChildFill="False" Margin="0,0,0,6">
+                                        <TextBlock Text="{Binding FormattedSize}" FontWeight="Bold" FontSize="13" Foreground="#FFFFFF" />
+                                        <TextBlock DockPanel.Dock="Right" Text="{Binding FormattedPercent}" FontWeight="SemiBold" FontSize="11" Foreground="{Binding HeatColor}" VerticalAlignment="Bottom" />
+                                    </DockPanel>
+
+                                    <!-- Mini Progress Bar -->
+                                    <ProgressBar Grid.Row="2" Height="3" Minimum="0" Maximum="100" Value="{Binding PercentOfParent}"
+                                                 Foreground="{Binding HeatColor}" Background="#1E293B" BorderThickness="0" Margin="0,0,0,6" />
+
+                                    <!-- Footer Stats -->
+                                    <DockPanel Grid.Row="3" LastChildFill="False">
+                                        <TextBlock Text="{Binding FileCount, StringFormat='{}{0:N0} dosya'}" Foreground="#64748B" FontSize="10" />
+                                        <TextBlock DockPanel.Dock="Right" Text="İncele ➔" Foreground="#38BDF8" FontSize="10" FontWeight="SemiBold"
+                                                   Visibility="{Binding IsDirectory, Converter={StaticResource BoolToVisibility}}" />
+                                    </DockPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</UserControl>

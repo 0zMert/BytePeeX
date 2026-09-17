@@ -25,6 +25,7 @@ public partial class App : Application
         };
 
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
+        Folderize.Services.SecurityPrivilegeService.EnsureBackupPrivileges();
 
         // 1. Show splash screen immediately
         var splash = new SplashScreenWindow();

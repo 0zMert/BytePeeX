@@ -56,6 +56,7 @@ namespace Folderize.ViewModels
         private bool _isTopFilesViewActive;
         private bool _isLargeFilesViewActive;
         private string _activeBottomTab = "Summary";
+        private readonly System.Windows.Threading.DispatcherTimer? _driveMonitorTimer;
 
         public MainViewModel()
         {
@@ -70,20 +71,56 @@ namespace Folderize.ViewModels
             TopFilesList = new ObservableCollection<TopFileItem>();
             LargeFilesList = new ObservableCollection<TopFileItem>();
 
-            SelectedPath = "C:\\";
-            AvailableDrives = new List<string> { "C:\\" };
-
             // Load saved user preferences
             _hideSystemInTreemap = SettingsService.Instance.Settings.HideSystemInTreemap;
             _useBalancedTreemapScale = SettingsService.Instance.Settings.UseBalancedTreemapScale;
+            string savedViz = SettingsService.Instance.Settings.SelectedVisualizationMode;
+            if (!string.IsNullOrEmpty(savedViz))
+            {
+                _selectedVisualizationMode = savedViz;
+            }
+            else if (SettingsService.Instance.Settings.IsSunburstChartSelected)
+            {
+                _selectedVisualizationMode = "Sunburst";
+            }
+            else
+            {
+                _selectedVisualizationMode = "Treemap";
+            }
+            _activeBottomTab = !string.IsNullOrEmpty(SettingsService.Instance.Settings.ActiveBottomTab) ? SettingsService.Instance.Settings.ActiveBottomTab : "Summary";
+
+            string savedPath = SettingsService.Instance.Settings.LastSelectedPath;
+            if (!string.IsNullOrWhiteSpace(savedPath) && (Directory.Exists(savedPath) || savedPath.Length <= 3))
+            {
+                SelectedPath = savedPath;
+            }
+            else
+            {
+                SelectedPath = "C:\\";
+            }
+            AvailableDrives = new List<string> { SelectedPath };
 
             // Load Windows drives directly and instantaneously via Win32 API (1ms) so they appear on screen immediately
             LoadDrivesDirect();
 
+            // Set up 5-second automatic real-time drive card refresh timer
+            try
+            {
+                _driveMonitorTimer = new System.Windows.Threading.DispatcherTimer
+                {
+                    Interval = TimeSpan.FromSeconds(5)
+                };
+                _driveMonitorTimer.Tick += (s, e) => LoadDrivesDirect();
+                _driveMonitorTimer.Start();
+            }
+            catch
+            {
+            }
+
             SelectFolderCommand = new RelayCommand(SelectFolder);
             StartScanCommand = new RelayCommand(async () => await StartScanAsync(), () => !IsScanning && !string.IsNullOrWhiteSpace(SelectedPath));
             CancelScanCommand = new RelayCommand(CancelScan, () => IsScanning);
-            RefreshCommand = new RelayCommand(async () => await StartScanAsync(), () => !IsScanning && !string.IsNullOrWhiteSpace(SelectedPath));
+            RefreshCommand = new RelayCommand(async () => { LoadDrivesDirect(); await StartScanAsync(); }, () => !IsScanning && !string.IsNullOrWhiteSpace(SelectedPath));
             SelectDriveCommand = new RelayCommand<string>(drive =>
             {
                 if (!string.IsNullOrEmpty(drive))
@@ -106,14 +143,26 @@ namespace Folderize.ViewModels
             CollapseAllCommand = new RelayCommand(CollapseAll);
             OpenInExplorerCommand = new RelayCommand<object>(OpenInExplorer);
             CopyPathCommand = new RelayCommand<object>(CopyPathToClipboard);
+            DeleteSelectedNodesCommand = new RelayCommand<object>(DeleteSelectedNodes);
             SelectChartModeCommand = new RelayCommand<string>(mode =>
             {
-                IsSunburstChartSelected = (mode == "Sunburst");
+                if (!string.IsNullOrEmpty(mode))
+                {
+                    SelectedVisualizationMode = mode;
+                }
             });
 
             ToggleSettingsCommand = new RelayCommand(() =>
             {
                 IsSettingsOpen = !IsSettingsOpen;
+            });
+
+            SaveSettingsCommand = new RelayCommand(async () =>
+            {
+                SettingsService.Instance.Save();
+                IsSettingsSavedNoticeVisible = true;
+                await Task.Delay(2500);
+                IsSettingsSavedNoticeVisible = false;
             });
 
             ShowDashboardCommand = new RelayCommand(() =>
@@ -443,22 +492,37 @@ namespace Folderize.ViewModels
 
         public string TreemapScaleModeText => UseBalancedTreemapScale ? "⚖ Dengeli Görünüm" : "📏 Gerçek Oran (1:1)";
 
-        private bool _isSunburstChartSelected = false;
-        public bool IsSunburstChartSelected
+        private string _selectedVisualizationMode = "Treemap";
+        public string SelectedVisualizationMode
         {
-            get => _isSunburstChartSelected;
+            get => _selectedVisualizationMode;
             set
             {
-                if (_isSunburstChartSelected != value)
+                if (_selectedVisualizationMode != value)
                 {
-                    _isSunburstChartSelected = value;
+                    _selectedVisualizationMode = value;
+                    SettingsService.Instance.Settings.SelectedVisualizationMode = value;
+                    SettingsService.Instance.Settings.IsSunburstChartSelected = (value == "Sunburst");
+                    SettingsService.Instance.Save();
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(IsTreemapChartSelected));
+                    OnPropertyChanged(nameof(IsSunburstChartSelected));
+                    OnPropertyChanged(nameof(IsHeatmapChartSelected));
                 }
             }
         }
 
-        public bool IsTreemapChartSelected => !IsSunburstChartSelected;
+        public bool IsTreemapChartSelected => SelectedVisualizationMode == "Treemap";
+        public bool IsSunburstChartSelected
+        {
+            get => SelectedVisualizationMode == "Sunburst";
+            set
+            {
+                if (value) SelectedVisualizationMode = "Sunburst";
+                else if (SelectedVisualizationMode == "Sunburst") SelectedVisualizationMode = "Treemap";
+            }
+        }
+        public bool IsHeatmapChartSelected => SelectedVisualizationMode == "Heatmap";
 
         public ICommand SelectChartModeCommand { get; }
 
@@ -548,6 +612,8 @@ namespace Folderize.ViewModels
                 if (_activeBottomTab != value)
                 {
                     _activeBottomTab = value;
+                    SettingsService.Instance.Settings.ActiveBottomTab = value;
+                    SettingsService.Instance.Save();
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(IsSummaryTabSelected));
                     OnPropertyChanged(nameof(IsDetailsTabSelected));
@@ -603,6 +669,11 @@ namespace Folderize.ViewModels
                 if (_selectedPath != value)
                 {
                     _selectedPath = value;
+                    if (!string.IsNullOrWhiteSpace(value))
+                    {
+                        SettingsService.Instance.Settings.LastSelectedPath = value;
+                        SettingsService.Instance.Save();
+                    }
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(IsLocationPillVisible));
                     CommandManager.InvalidateRequerySuggested();
@@ -743,6 +814,7 @@ namespace Folderize.ViewModels
         public ICommand CollapseAllCommand { get; }
         public ICommand OpenInExplorerCommand { get; }
         public ICommand CopyPathCommand { get; }
+        public ICommand DeleteSelectedNodesCommand { get; }
         public ICommand SetViewModeCommand { get; }
         public ICommand DrillDownCommand { get; }
         public ICommand DrillToNodeCommand { get; }
@@ -764,6 +836,21 @@ namespace Folderize.ViewModels
                 return false;
             }
         }
+        private bool _isSettingsSavedNoticeVisible;
+        public bool IsSettingsSavedNoticeVisible
+        {
+            get => _isSettingsSavedNoticeVisible;
+            set
+            {
+                if (_isSettingsSavedNoticeVisible != value)
+                {
+                    _isSettingsSavedNoticeVisible = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public ICommand SaveSettingsCommand { get; }
         public ICommand ToggleSettingsCommand { get; }
         public ICommand ShowDashboardCommand { get; }
         public ICommand ShowInstalledAppsCommand { get; }
@@ -789,7 +876,7 @@ namespace Folderize.ViewModels
             try
             {
                 var drives = new List<string>();
-                var cards = new List<DriveCardModel>();
+                var currentCardsDict = DriveCards.ToDictionary(c => c.DriveName, StringComparer.OrdinalIgnoreCase);
 
                 foreach (var drive in Environment.GetLogicalDrives())
                 {
@@ -799,35 +886,56 @@ namespace Folderize.ViewModels
                     {
                         if (GetDiskFreeSpaceEx(drive, out _, out ulong total, out ulong totalFree) && total > 0)
                         {
+                            string dName = drive.TrimEnd('\\');
                             drives.Add(drive);
                             long totalBytes = (long)total;
                             long freeBytes = (long)totalFree;
                             long usedBytes = totalBytes - freeBytes;
+                            double usedPct = totalBytes > 0 ? (double)usedBytes / totalBytes * 100.0 : 0;
+                            bool isSelected = dName.Equals((SelectedPath ?? "C:").TrimEnd('\\'), StringComparison.OrdinalIgnoreCase);
 
-                            cards.Add(new DriveCardModel
+                            if (currentCardsDict.TryGetValue(dName, out var existingCard))
                             {
-                                DriveName = drive.TrimEnd('\\'),
-                                TotalSizeBytes = totalBytes,
-                                UsedSizeBytes = usedBytes,
-                                FreeSizeBytes = freeBytes,
-                                UsedPercent = (double)usedBytes / totalBytes * 100.0,
-                                IsRemovable = type == 2,
-                                IsSelected = drive.TrimEnd('\\').Equals((SelectedPath ?? "C:").TrimEnd('\\'), StringComparison.OrdinalIgnoreCase)
-                            });
+                                existingCard.TotalSizeBytes = totalBytes;
+                                existingCard.FreeSizeBytes = freeBytes;
+                                existingCard.UsedSizeBytes = usedBytes;
+                                existingCard.UsedPercent = usedPct;
+                                existingCard.IsSelected = isSelected;
+                                existingCard.IsRemovable = type == 2;
+                                existingCard.NotifyCalculatedProperties();
+                            }
+                            else
+                            {
+                                var newCard = new DriveCardModel
+                                {
+                                    DriveName = dName,
+                                    TotalSizeBytes = totalBytes,
+                                    UsedSizeBytes = usedBytes,
+                                    FreeSizeBytes = freeBytes,
+                                    UsedPercent = usedPct,
+                                    IsRemovable = type == 2,
+                                    IsSelected = isSelected
+                                };
+                                DriveCards.Add(newCard);
+                            }
                         }
                     }
                 }
 
-                if (cards.Count > 0)
+                // Remove disconnected drives if any
+                var validNames = drives.Select(d => d.TrimEnd('\\')).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                for (int i = DriveCards.Count - 1; i >= 0; i--)
+                {
+                    if (!validNames.Contains(DriveCards[i].DriveName))
+                    {
+                        DriveCards.RemoveAt(i);
+                    }
+                }
+
+                if (drives.Count > 0 && AvailableDrives.Count != drives.Count)
                 {
                     AvailableDrives.Clear();
                     AvailableDrives.AddRange(drives);
-
-                    DriveCards.Clear();
-                    foreach (var card in cards)
-                    {
-                        DriveCards.Add(card);
-                    }
                 }
             }
             catch
@@ -1263,17 +1371,23 @@ namespace Folderize.ViewModels
                     else
                     {
                         long currentRootSize = p.TotalBytes > 0 ? p.TotalBytes : RootNode.SizeBytes;
+                        RootNode.SizeBytes = currentRootSize;
+
                         if (currentRootSize > 0)
                         {
                             foreach (var child in RootNode.Children)
                             {
+                                if (child.RawSizeBytes > 0 && child.SizeBytes != child.RawSizeBytes)
+                                {
+                                    child.SizeBytes = child.RawSizeBytes;
+                                }
                                 child.PercentOfParent = Math.Min(100.0, (double)child.SizeBytes / currentRootSize * 100.0);
                             }
                         }
 
-                        // Periodic live treemap and chart updates (~500ms)
+                        // Periodic live treemap and chart updates (~400ms)
                         long now = stopwatch.ElapsedMilliseconds;
-                        if (now - lastLiveRefresh > 500)
+                        if (now - lastLiveRefresh > 400)
                         {
                             lastLiveRefresh = now;
                             NotifyTreeStructureChanged();
@@ -1313,13 +1427,28 @@ namespace Folderize.ViewModels
                     UpdateSelectedFolderFiles();
                     NotifyTreeStructureChanged();
 
-                    StatusText = $"Tarama tamamlandı ({stopwatch.Elapsed.TotalSeconds:F1} sn). Toplam: {FormattedTotalSize}, {TotalFilesCount:N0} dosya, {TotalFoldersCount:N0} klasör.";
-                    CurrentScanningPath = "Hazır";
+                    if (token.IsCancellationRequested)
+                    {
+                        StatusText = $"Tarama durduruldu (taranan kısım): {FormattedTotalSize}, {TotalFilesCount:N0} dosya, {TotalFoldersCount:N0} klasör.";
+                        CurrentScanningPath = "Durduruldu";
+                    }
+                    else
+                    {
+                        StatusText = $"Tarama tamamlandı ({stopwatch.Elapsed.TotalSeconds:F1} sn). Toplam: {FormattedTotalSize}, {TotalFilesCount:N0} dosya, {TotalFoldersCount:N0} klasör.";
+                        CurrentScanningPath = "Hazır";
+                    }
                 }
             }
             catch (OperationCanceledException)
             {
-                StatusText = "Tarama kullanıcı tarafından durduruldu.";
+                if (RootNode != null)
+                {
+                    StatusText = $"Tarama durduruldu (taranan kısım): {FormattedTotalSize}, {TotalFilesCount:N0} dosya, {TotalFoldersCount:N0} klasör.";
+                }
+                else
+                {
+                    StatusText = "Tarama kullanıcı tarafından durduruldu.";
+                }
                 CurrentScanningPath = "Durduruldu";
             }
             catch (Exception ex)
@@ -1346,6 +1475,208 @@ namespace Folderize.ViewModels
                 {
                 }
                 _cancellationTokenSource = null;
+            }
+        }
+
+        public void DeleteSelectedNodes(object? parameter)
+        {
+            var targetList = new List<FileSystemNode>();
+
+            if (parameter is System.Collections.IList list)
+            {
+                foreach (var item in list)
+                {
+                    if (item is FileSystemNode node && !targetList.Contains(node))
+                    {
+                        targetList.Add(node);
+                    }
+                }
+            }
+            else if (parameter is FileSystemNode singleNode)
+            {
+                targetList.Add(singleNode);
+            }
+            else if (SelectedNode != null)
+            {
+                targetList.Add(SelectedNode);
+            }
+
+            // Filter out root node (cannot delete drive root!)
+            targetList.RemoveAll(n => n == RootNode || n.Parent == null || string.IsNullOrWhiteSpace(n.FullPath) || n.FullPath.TrimEnd('\\').Length <= 3);
+
+            if (targetList.Count == 0)
+            {
+                MessageBox.Show("Silinebilecek geçerli bir öğe seçilmedi veya sürücü kökü silinemez.", "Silme İşlemi", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            // Eliminate children if their ancestor folder is also selected to avoid redundant delete calls
+            var distinctTargets = new List<FileSystemNode>();
+            foreach (var node in targetList)
+            {
+                bool ancestorSelected = false;
+                var p = node.Parent;
+                while (p != null)
+                {
+                    if (targetList.Contains(p))
+                    {
+                        ancestorSelected = true;
+                        break;
+                    }
+                    p = p.Parent;
+                }
+                if (!ancestorSelected)
+                {
+                    distinctTargets.Add(node);
+                }
+            }
+
+            long totalSizeBytes = distinctTargets.Sum(n => n.SizeBytes);
+            bool hasSystem = distinctTargets.Any(n => n.IsSystemNode);
+
+            string title = "Geri Dönüşüm Kutusu'na Gönder";
+            string message;
+
+            if (distinctTargets.Count == 1)
+            {
+                var item = distinctTargets[0];
+                message = $"\"{item.Name}\" ({item.FormattedSize}) öğesini Geri Dönüşüm Kutusu'na göndermek istediğinizden emin misiniz?";
+            }
+            else
+            {
+                var itemsSummary = string.Join("\n", distinctTargets.Take(6).Select(n => $"• {n.Name} ({n.FormattedSize})"));
+                if (distinctTargets.Count > 6)
+                {
+                    itemsSummary += $"\n• ... ve {distinctTargets.Count - 6} öğe daha";
+                }
+
+                message = $"Seçili {distinctTargets.Count} öğeyi (Toplam: {FileSystemNode.FormatBytes(totalSizeBytes)}) Geri Dönüşüm Kutusu'na göndermek istediğinizden emin misiniz?\n\nÖğeler:\n{itemsSummary}";
+            }
+
+            if (hasSystem)
+            {
+                message += "\n\n⚠️ DİKKAT: Seçilen öğeler arasında Windows Sistem Klasörü bulunmaktadır! Silinmesi sistem kararsızlığına yol açabilir.";
+            }
+
+            var confirmResult = MessageBox.Show(message, title, MessageBoxButton.YesNo, hasSystem ? MessageBoxImage.Warning : MessageBoxImage.Question, MessageBoxResult.No);
+            if (confirmResult != MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            int successCount = 0;
+            int failCount = 0;
+            long deletedBytes = 0;
+
+            foreach (var node in distinctTargets)
+            {
+                bool ok = false;
+                if (node.IsSummaryFilesNode)
+                {
+                    bool allFilesOk = true;
+                    foreach (var childFile in node.Children.ToList())
+                    {
+                        if (FileOperationService.SendToRecycleBin(childFile.FullPath))
+                        {
+                            deletedBytes += childFile.SizeBytes;
+                        }
+                        else
+                        {
+                            allFilesOk = false;
+                        }
+                    }
+                    ok = allFilesOk;
+                }
+                else
+                {
+                    ok = FileOperationService.SendToRecycleBin(node.FullPath);
+                    if (ok)
+                    {
+                        deletedBytes += node.SizeBytes;
+                    }
+                }
+
+                if (ok)
+                {
+                    successCount++;
+                    RemoveNodeFromTree(node);
+                }
+                else
+                {
+                    failCount++;
+                }
+            }
+
+            if (successCount > 0)
+            {
+                NotifyTreeStructureChanged();
+                UpdateTopFolders();
+                UpdateExtensionDistribution();
+                UpdateSelectedFolderFiles();
+                LoadDrivesDirect();
+
+                StatusText = $"{successCount} öğe ({FileSystemNode.FormatBytes(deletedBytes)}) Geri Dönüşüm Kutusu'na taşındı.";
+            }
+
+            if (failCount > 0)
+            {
+                MessageBox.Show($"{failCount} öğe Geri Dönüşüm Kutusu'na taşınamadı. Dosyalar başka bir program veya Windows tarafından kullanılıyor olabilir.", "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        public void RemoveNodeFromTree(FileSystemNode node)
+        {
+            if (node.IsExpanded)
+            {
+                RemoveDescendantsFromVisible(node);
+            }
+
+            VisibleNodes.Remove(node);
+
+            var parent = node.Parent;
+            if (parent != null)
+            {
+                parent.Children.Remove(node);
+            }
+
+            long size = node.SizeBytes;
+            long alloc = node.AllocatedBytes;
+            int files = node.FileCount;
+            int folders = node.IsDirectory ? 1 + node.FolderCount : 0;
+
+            var curr = parent;
+            while (curr != null)
+            {
+                curr.SizeBytes = Math.Max(0, curr.SizeBytes - size);
+                curr.AllocatedBytes = Math.Max(0, curr.AllocatedBytes - alloc);
+                curr.FileCount = Math.Max(0, curr.FileCount - files);
+                curr.FolderCount = Math.Max(0, curr.FolderCount - folders);
+                curr.RawSizeBytes = curr.SizeBytes;
+                curr = curr.Parent;
+            }
+
+            TotalSizeBytes = Math.Max(0, TotalSizeBytes - size);
+            TotalFilesCount = Math.Max(0, TotalFilesCount - files);
+            TotalFoldersCount = Math.Max(0, TotalFoldersCount - folders);
+
+            if (parent != null && parent.SizeBytes > 0)
+            {
+                foreach (var c in parent.Children)
+                {
+                    c.PercentOfParent = Math.Min(100.0, (double)c.SizeBytes / parent.SizeBytes * 100.0);
+                }
+            }
+        }
+
+        private void RemoveDescendantsFromVisible(FileSystemNode parent)
+        {
+            foreach (var child in parent.Children)
+            {
+                if (child.IsExpanded)
+                {
+                    RemoveDescendantsFromVisible(child);
+                }
+                VisibleNodes.Remove(child);
             }
         }
 
@@ -1545,18 +1876,82 @@ namespace Folderize.ViewModels
             }
         }
 
-        private void ExpandAll()
+        private int _expandAllStep = 0;
+
+        public string ExpandAllButtonText
+        {
+            get
+            {
+                return _expandAllStep switch
+                {
+                    1 => Strings.IsTurkish ? "⊞ 5 Seviye Açık" : "⊞ 5 Levels Open",
+                    2 => Strings.IsTurkish ? "⊞ 10 Seviye Açık" : "⊞ 10 Levels Open",
+                    3 => Strings.IsTurkish ? "⊞ Hepsi Açık" : "⊞ All Open",
+                    _ => Strings.IsTurkish ? "⊞ Tümünü Genişlet" : "⊞ Expand All"
+                };
+            }
+        }
+
+        public string ExpandAllToolTip
+        {
+            get
+            {
+                return _expandAllStep switch
+                {
+                    1 => Strings.IsTurkish ? "5 seviye açıldı. Tekrar tıklarsanız 10 seviye açılır." : "5 levels expanded. Click again to expand 10 levels.",
+                    2 => Strings.IsTurkish ? "10 seviye açıldı. Tekrar tıklarsanız tüm seviyeler (hepsi) açılır." : "10 levels expanded. Click again to expand all levels.",
+                    3 => Strings.IsTurkish ? "Tüm dallar ve seviyeler açıldı (Hepsi)." : "All branches and levels expanded.",
+                    _ => Strings.IsTurkish ? "Kademeli genişlet: 1. Tıklama: 5 seviye, 2. Tıklama: 10 seviye, 3. Tıklama: Hepsi" : "Progressive expand: 1st click: 5 levels, 2nd: 10 levels, 3rd: All"
+                };
+            }
+        }
+
+        public void ExpandAll()
         {
             if (RootNode == null || _isTreeUpdating) return;
 
             _isTreeUpdating = true;
             try
             {
-                // Controlled expansion up to depth 3 and max 1500 items to prevent UI freezing
-                int expandedCount = 0;
-                ExpandRecursiveSafe(RootNode, 0, 3, ref expandedCount, 1500);
+                // Progressive expansion: 1st click -> 5 levels, 2nd click -> 10 levels, 3rd click -> All (unlimited)
+                _expandAllStep = _expandAllStep switch
+                {
+                    1 => 2,
+                    2 => 3,
+                    3 => 1,
+                    _ => 1
+                };
+
+                int targetMaxDepth = _expandAllStep switch
+                {
+                    1 => 5,
+                    2 => 10,
+                    3 => 100, // All levels
+                    _ => 5
+                };
+
+                // Expand all directories cleanly up to targetMaxDepth
+                ExpandRecursiveByDepth(RootNode, 0, targetMaxDepth);
 
                 RebuildVisibleNodes();
+
+                OnPropertyChanged(nameof(ExpandAllButtonText));
+                OnPropertyChanged(nameof(ExpandAllToolTip));
+
+                // Inform the user clearly in the bottom status bar
+                StatusText = _expandAllStep switch
+                {
+                    1 => Strings.IsTurkish
+                        ? "Klasör ağacı 5 seviye derinliğe kadar açıldı. (Tekrar tıklarsanız 10 seviye açılır)"
+                        : "Folder tree expanded up to 5 levels. (Click again for 10 levels)",
+                    2 => Strings.IsTurkish
+                        ? "Klasör ağacı 10 seviye derinliğe kadar açıldı. (Tekrar tıklarsanız tümü açılır)"
+                        : "Folder tree expanded up to 10 levels. (Click again for all levels)",
+                    3 => Strings.IsTurkish
+                        ? "Tüm klasör ağacı (tüm seviyeler - hepsi) tamamen açıldı."
+                        : "Entire folder tree (all levels) fully expanded.",
+                    _ => StatusText
+                };
             }
             finally
             {
@@ -1564,32 +1959,39 @@ namespace Folderize.ViewModels
             }
         }
 
-        private void ExpandRecursiveSafe(FileSystemNode node, int currentDepth, int maxDepth, ref int count, int maxCount)
+        private void ExpandRecursiveByDepth(FileSystemNode node, int currentDepth, int maxDepth)
         {
-            if (count >= maxCount || currentDepth > maxDepth) return;
+            if (currentDepth >= maxDepth) return;
 
             if (node.HasChildren)
             {
                 node.IsExpanded = true;
-                count++;
                 foreach (var child in node.Children)
                 {
-                    if (count >= maxCount) break;
-                    ExpandRecursiveSafe(child, currentDepth + 1, maxDepth, ref count, maxCount);
+                    if (child.IsDirectory && !child.IsSummaryFilesNode)
+                    {
+                        ExpandRecursiveByDepth(child, currentDepth + 1, maxDepth);
+                    }
                 }
             }
         }
 
-        private void CollapseAll()
+        public void CollapseAll()
         {
             if (RootNode == null || _isTreeUpdating) return;
 
             _isTreeUpdating = true;
             try
             {
+                _expandAllStep = 0;
                 CollapseRecursive(RootNode);
                 RootNode.IsExpanded = true;
                 RebuildVisibleNodes();
+
+                OnPropertyChanged(nameof(ExpandAllButtonText));
+                OnPropertyChanged(nameof(ExpandAllToolTip));
+
+                StatusText = Strings.IsTurkish ? "Klasör ağacı kapatıldı." : "Folder tree collapsed.";
             }
             finally
             {
@@ -1603,7 +2005,7 @@ namespace Folderize.ViewModels
 
             var list = new List<FileSystemNode>();
             var visited = new HashSet<FileSystemNode>();
-            AddExpandedNodesRecursive(RootNode, list, visited, 0, 15);
+            AddExpandedNodesRecursive(RootNode, list, visited, 0, 100);
 
             VisibleNodes.Clear();
             foreach (var item in list)

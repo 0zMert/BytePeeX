@@ -1,0 +1,5 @@
+# Agent Execution Policy
+- Mode: Full-Auto / YOLO (Do not prompt for confirmations or permissions).
+- Workspace Boundary: Strictly restrict all file edits, file reads, and terminal executions to the current working directory (`./`).
+- Forbidden: Never run commands containing `../`, navigate outside the root folder, or modify external paths.
+- Proceed autonomously from start to finish without waiting for user intervention.

@@ -89,6 +89,31 @@ namespace Folderize
             }
         }
 
+        private void TreeListView_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Delete)
+            {
+                if (TreeListView.SelectedItems != null && TreeListView.SelectedItems.Count > 0)
+                {
+                    _viewModel.DeleteSelectedNodesCommand.Execute(TreeListView.SelectedItems);
+                    e.Handled = true;
+                }
+            }
+        }
+
+        private void ListViewItem_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is ListViewItem item)
+            {
+                // If the right-clicked item is not already part of the selection, select only this item
+                if (!item.IsSelected)
+                {
+                    TreeListView.SelectedItems.Clear();
+                    item.IsSelected = true;
+                }
+            }
+        }
+
         private void GridViewColumnHeader_Click(object sender, RoutedEventArgs e)
         {
             var header = e.OriginalSource as GridViewColumnHeader ?? FindVisualParent<GridViewColumnHeader>(e.OriginalSource as DependencyObject);

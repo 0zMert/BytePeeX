@@ -9,6 +9,10 @@ namespace Folderize.Services
         public string Language { get; set; } = "tr";
         public bool HideSystemInTreemap { get; set; } = false;
         public bool UseBalancedTreemapScale { get; set; } = true;
+        public string LastSelectedPath { get; set; } = "C:\\";
+        public bool IsSunburstChartSelected { get; set; } = false;
+        public string ActiveBottomTab { get; set; } = "Summary";
+        public string SelectedVisualizationMode { get; set; } = "Treemap";
     }
 
     public class SettingsService
@@ -53,6 +57,12 @@ namespace Folderize.Services
             {
                 if (!string.IsNullOrEmpty(_configFilePath))
                 {
+                    string? dir = Path.GetDirectoryName(_configFilePath);
+                    if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+                    {
+                        Directory.CreateDirectory(dir);
+                    }
+
                     var options = new JsonSerializerOptions { WriteIndented = true };
                     string json = JsonSerializer.Serialize(Settings, options);
                     File.WriteAllText(_configFilePath, json);

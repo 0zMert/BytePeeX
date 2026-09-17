@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -54,6 +54,42 @@ namespace Folderize.Models
             }
         }
 
+        public string HeatColor
+        {
+            get
+            {
+                if (SizeBytes >= 10L * 1024 * 1024 * 1024) return "#EF4444"; // Red / Critical (>10 GB)
+                if (SizeBytes >= 1L * 1024 * 1024 * 1024) return "#F97316";  // Orange / Large (1 - 10 GB)
+                if (SizeBytes >= 250L * 1024 * 1024) return "#EAB308";       // Yellow / Medium (250 MB - 1 GB)
+                if (SizeBytes >= 50L * 1024 * 1024) return "#38BDF8";        // Sky Blue / Normal (50 - 250 MB)
+                return "#64748B";                                             // Slate / Light (<50 MB)
+            }
+        }
+
+        public string HeatBackground
+        {
+            get
+            {
+                if (SizeBytes >= 10L * 1024 * 1024 * 1024) return "#2D1217"; // Subtle crimson tint
+                if (SizeBytes >= 1L * 1024 * 1024 * 1024) return "#29180E";  // Subtle amber tint
+                if (SizeBytes >= 250L * 1024 * 1024) return "#241D10";       // Subtle yellow tint
+                return "#131C2E";                                             // Dark slate
+            }
+        }
+
+        public string HeatBadgeText
+        {
+            get
+            {
+                if (SizeBytes >= 10L * 1024 * 1024 * 1024) return "🔥 Kritik";
+                if (SizeBytes >= 1L * 1024 * 1024 * 1024) return "⚡ Büyük";
+                if (SizeBytes >= 250L * 1024 * 1024) return "📦 Orta";
+                return "📄 Hafif";
+            }
+        }
+
+        public long RawSizeBytes;
+
         public long SizeBytes
         {
             get => _sizeBytes;
@@ -62,8 +98,12 @@ namespace Folderize.Models
                 if (_sizeBytes != value)
                 {
                     _sizeBytes = value;
+                    if (RawSizeBytes < value) RawSizeBytes = value;
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(FormattedSize));
+                    OnPropertyChanged(nameof(HeatColor));
+                    OnPropertyChanged(nameof(HeatBackground));
+                    OnPropertyChanged(nameof(HeatBadgeText));
                 }
             }
         }
