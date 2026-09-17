@@ -26,6 +26,157 @@
         <converters:LanguageActiveBgConverter x:Key="LanguageActiveBgConverter" />
         <converters:LanguageActiveFgConverter x:Key="LanguageActiveFgConverter" />
 
+        <!-- Primary Toolbar Button Style ("Tara" / Scan button with dark disabled state) -->
+        <Style x:Key="ToolbarPrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#2563EB" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="14,5" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="btnBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#1D4ED8" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#1E40AF" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#151F32" />
+                                <Setter TargetName="btnBorder" Property="BorderBrush" Value="#334155" />
+                                <Setter TargetName="btnBorder" Property="BorderThickness" Value="1" />
+                                <Setter Property="Foreground" Value="#64748B" />
+                                <Setter TargetName="btnBorder" Property="Opacity" Value="0.6" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Default Outline Toolbar Button Style (Select Folder) -->
+        <Style x:Key="ToolbarDefaultButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#1E293B" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="BorderBrush" Value="#334155" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="12,5" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="btnBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#334155" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#0F172A" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#151F32" />
+                                <Setter TargetName="btnBorder" Property="BorderBrush" Value="#1E293B" />
+                                <Setter Property="Foreground" Value="#64748B" />
+                                <Setter TargetName="btnBorder" Property="Opacity" Value="0.6" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Danger / Stop Toolbar Button Style (Durdur) -->
+        <Style x:Key="ToolbarDangerButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#DC2626" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="12,5" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="btnBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#B91C1C" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#991B1B" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Icon / Refresh Toolbar Button Style -->
+        <Style x:Key="ToolbarIconButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#1E293B" />
+            <Setter Property="Foreground" Value="#94A3B8" />
+            <Setter Property="BorderBrush" Value="#334155" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="8,5" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="btnBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#334155" />
+                                <Setter Property="Foreground" Value="#F8FAFC" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#0F172A" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#151F32" />
+                                <Setter TargetName="btnBorder" Property="BorderBrush" Value="#1E293B" />
+                                <Setter Property="Foreground" Value="#475569" />
+                                <Setter TargetName="btnBorder" Property="Opacity" Value="0.5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- Sidebar Navigation Button Style -->
         <Style x:Key="SidebarNavButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent" />
@@ -160,43 +311,43 @@
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0">
                     <!-- Select Folder -->
                     <Button Command="{Binding SelectFolderCommand}"
-                            Background="#1E293B" Foreground="#FFFFFF" BorderBrush="#334155" BorderThickness="1"
-                            Padding="12,5" Margin="0,0,6,0" Cursor="Hand">
+                            Style="{StaticResource ToolbarDefaultButtonStyle}"
+                            Margin="0,0,6,0">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <Path Fill="#FBBF24" Width="14" Height="14" Stretch="Uniform" Margin="0,0,6,0"
                                   Data="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z" />
-                            <TextBlock Text="{Binding Strings.SelectFolder}" VerticalAlignment="Center" FontSize="12" />
+                            <TextBlock Text="{Binding Strings.SelectFolder}" VerticalAlignment="Center" FontSize="12" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                         </StackPanel>
                     </Button>
 
                     <!-- Start Scan -->
                     <Button Command="{Binding StartScanCommand}"
-                            Background="#2563EB" Foreground="#FFFFFF" BorderThickness="0"
-                            Padding="14,5" Margin="0,0,6,0" Cursor="Hand" FontWeight="SemiBold">
+                            Style="{StaticResource ToolbarPrimaryButtonStyle}"
+                            Margin="0,0,6,0">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Path Fill="#FFFFFF" Width="12" Height="12" Stretch="Uniform" Margin="0,0,6,0"
+                            <Path Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Width="12" Height="12" Stretch="Uniform" Margin="0,0,6,0"
                                   Data="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z" />
-                            <TextBlock Text="{Binding Strings.StartScan}" VerticalAlignment="Center" FontSize="12" />
+                            <TextBlock Text="{Binding Strings.StartScan}" VerticalAlignment="Center" FontSize="12" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                         </StackPanel>
                     </Button>
 
                     <!-- Stop Button (if scanning) -->
                     <Button Command="{Binding CancelScanCommand}"
                             Visibility="{Binding IsScanning, Converter={StaticResource BoolToVisibility}}"
-                            Background="#DC2626" Foreground="#FFFFFF" BorderThickness="0"
-                            Padding="12,5" Margin="0,0,6,0" Cursor="Hand">
+                            Style="{StaticResource ToolbarDangerButtonStyle}"
+                            Margin="0,0,6,0">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Path Fill="#FFFFFF" Width="10" Height="10" Stretch="Uniform" Margin="0,0,6,0"
+                            <Path Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Width="10" Height="10" Stretch="Uniform" Margin="0,0,6,0"
                                   Data="M6,6H18V18H6V6Z" />
-                            <TextBlock Text="{Binding Strings.StopScan}" VerticalAlignment="Center" FontSize="12" />
+                            <TextBlock Text="{Binding Strings.StopScan}" VerticalAlignment="Center" FontSize="12" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                         </StackPanel>
                     </Button>
 
                     <!-- Refresh Button -->
                     <Button Command="{Binding RefreshCommand}"
-                            Background="#1E293B" Foreground="#94A3B8" BorderBrush="#334155" BorderThickness="1"
-                            Padding="8,5" Cursor="Hand" ToolTip="{Binding Strings.RescanToolTip}">
-                        <Path Fill="#94A3B8" Width="12" Height="12" Stretch="Uniform"
+                            Style="{StaticResource ToolbarIconButtonStyle}"
+                            ToolTip="{Binding Strings.RescanToolTip}">
+                        <Path Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Width="12" Height="12" Stretch="Uniform"
                               Data="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" />
                     </Button>
                 </StackPanel>
