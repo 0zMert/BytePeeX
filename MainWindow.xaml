@@ -215,6 +215,46 @@
             <Setter Property="Foreground" Value="#FFFFFF" />
         </Style>
 
+        <!-- Overview Nav Button Style with Active Indicator -->
+        <Style x:Key="OverviewNavButtonStyle" TargetType="Button" BasedOn="{StaticResource SidebarNavButtonStyle}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsDashboardViewActive}" Value="True">
+                    <Setter Property="Background" Value="#1E293B" />
+                    <Setter Property="Foreground" Value="#FFFFFF" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Installed Apps Nav Button Style with Active Indicator -->
+        <Style x:Key="InstalledAppsNavButtonStyle" TargetType="Button" BasedOn="{StaticResource SidebarNavButtonStyle}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsAppsViewActive}" Value="True">
+                    <Setter Property="Background" Value="#1E293B" />
+                    <Setter Property="Foreground" Value="#FFFFFF" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Top Files Nav Button Style with Active Indicator -->
+        <Style x:Key="TopFilesNavButtonStyle" TargetType="Button" BasedOn="{StaticResource SidebarNavButtonStyle}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsTopFilesViewActive}" Value="True">
+                    <Setter Property="Background" Value="#1E293B" />
+                    <Setter Property="Foreground" Value="#FFFFFF" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Large Files Nav Button Style with Active Indicator -->
+        <Style x:Key="LargeFilesNavButtonStyle" TargetType="Button" BasedOn="{StaticResource SidebarNavButtonStyle}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsLargeFilesViewActive}" Value="True">
+                    <Setter Property="Background" Value="#1E293B" />
+                    <Setter Property="Foreground" Value="#FFFFFF" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
         <!-- Drive Card Button Style -->
         <Style x:Key="DriveCardButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="#151F32" />
@@ -307,8 +347,9 @@
                     </Border>
                 </StackPanel>
 
-                <!-- Middle: Scan Toolbar Buttons -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0">
+                <!-- Middle: Scan Toolbar Buttons (Visible only on Overview / Dashboard) -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0"
+                            Visibility="{Binding IsDashboardViewActive, Converter={StaticResource BoolToVisibility}}">
                     <!-- Select Folder -->
                     <Button Command="{Binding SelectFolderCommand}"
                             Style="{StaticResource ToolbarDefaultButtonStyle}"
@@ -354,8 +395,9 @@
 
                 <!-- Right: Drive Storage Indicator, Language Switcher & Settings -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <!-- Active Drive Pill -->
-                    <Border Background="#151F32" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="6" Padding="10,4" Margin="0,0,8,0">
+                    <!-- Active Drive Pill (Visible only on Overview / Dashboard) -->
+                    <Border Background="#151F32" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="6" Padding="10,4" Margin="0,0,8,0"
+                            Visibility="{Binding IsDashboardViewActive, Converter={StaticResource BoolToVisibility}}">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <Path Fill="#38BDF8" Width="14" Height="14" Stretch="Uniform" Margin="0,0,6,0"
                                   Data="M6,2H18A2,2 0 0,1 20,4V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V4A2,2 0 0,1 6,2M12,4A6,6 0 0,0 6,10C6,12.19 7.18,14.11 8.93,15.16L8,19H16L15.07,15.16C16.82,14.11 18,12.19 18,10A6,6 0 0,0 12,4Z" />
@@ -455,7 +497,7 @@
                     <!-- Top Navigation Items with Crisp Vector SVG Icons (No Emojis!) -->
                     <StackPanel DockPanel.Dock="Top" Margin="0,10,0,0">
                         <!-- Overview Button -->
-                        <Button Style="{StaticResource SidebarNavButtonStyle}"
+                        <Button Style="{StaticResource OverviewNavButtonStyle}"
                                 Command="{Binding ShowDashboardCommand}">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <Path Fill="#38BDF8" Width="15" Height="15" Stretch="Uniform" Margin="0,0,10,0"
@@ -465,7 +507,7 @@
                         </Button>
 
                         <!-- Installed Apps Button (Feature #1) -->
-                        <Button Style="{StaticResource SidebarNavButtonStyle}"
+                        <Button Style="{StaticResource InstalledAppsNavButtonStyle}"
                                 Command="{Binding ShowInstalledAppsCommand}">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <Path Fill="#818CF8" Width="15" Height="15" Stretch="Uniform" Margin="0,0,10,0"
@@ -485,7 +527,7 @@
                         </Button>
 
                         <!-- Top Files Button -->
-                        <Button Style="{StaticResource SidebarNavButtonStyle}"
+                        <Button Style="{StaticResource TopFilesNavButtonStyle}"
                                 Command="{Binding ShowTopFilesCommand}">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <Path Fill="#34D399" Width="15" Height="15" Stretch="Uniform" Margin="0,0,10,0"
@@ -495,7 +537,7 @@
                         </Button>
 
                         <!-- Large Files Button -->
-                        <Button Style="{StaticResource SidebarNavButtonStyle}"
+                        <Button Style="{StaticResource LargeFilesNavButtonStyle}"
                                 Command="{Binding ShowLargeFilesCommand}">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <Path Fill="#F472B6" Width="15" Height="15" Stretch="Uniform" Margin="0,0,10,0"
