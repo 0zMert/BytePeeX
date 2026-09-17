@@ -464,7 +464,8 @@
                                 <DataTemplate>
                                     <Button Style="{StaticResource DriveCardButtonStyle}"
                                             Command="{Binding DataContext.SelectDriveCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                            CommandParameter="{Binding DriveName}">
+                                            CommandParameter="{Binding DriveName}"
+                                            ToolTip="{Binding DriveName, StringFormat='Dosya Gezgini ile Aç: {0}'}">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto" />
@@ -496,7 +497,7 @@
 
                     <!-- Top Navigation Items with Crisp Vector SVG Icons (No Emojis!) -->
                     <StackPanel DockPanel.Dock="Top" Margin="0,10,0,0">
-                        <!-- Overview Button -->
+                        <!-- 1. Overview Button -->
                         <Button Style="{StaticResource OverviewNavButtonStyle}"
                                 Command="{Binding ShowDashboardCommand}">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -506,27 +507,7 @@
                             </StackPanel>
                         </Button>
 
-                        <!-- Installed Apps Button (Feature #1) -->
-                        <Button Style="{StaticResource InstalledAppsNavButtonStyle}"
-                                Command="{Binding ShowInstalledAppsCommand}">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <Path Fill="#818CF8" Width="15" Height="15" Stretch="Uniform" Margin="0,0,10,0"
-                                      Data="M4,4H10V10H4V4M14,4H20V10H14V4M4,14H10V20H4V14M14,14H20V20H14V14Z" />
-                                <TextBlock Text="{Binding Strings.NavInstalledApps}" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button>
-
-                        <!-- File Explorer Button -->
-                        <Button Style="{StaticResource SidebarNavButtonStyle}"
-                                Command="{Binding OpenInExplorerCommand}" CommandParameter="{Binding SelectedNode}">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <Path Fill="#FBBF24" Width="15" Height="15" Stretch="Uniform" Margin="0,0,10,0"
-                                      Data="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z" />
-                                <TextBlock Text="{Binding Strings.NavFileExplorer}" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button>
-
-                        <!-- Top Files Button -->
+                        <!-- 2. Top Files Button -->
                         <Button Style="{StaticResource TopFilesNavButtonStyle}"
                                 Command="{Binding ShowTopFilesCommand}">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -536,7 +517,7 @@
                             </StackPanel>
                         </Button>
 
-                        <!-- Large Files Button -->
+                        <!-- 3. Large Files Button -->
                         <Button Style="{StaticResource LargeFilesNavButtonStyle}"
                                 Command="{Binding ShowLargeFilesCommand}">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -546,7 +527,17 @@
                             </StackPanel>
                         </Button>
 
-                        <!-- Settings Button -->
+                        <!-- 4. Installed Apps Button -->
+                        <Button Style="{StaticResource InstalledAppsNavButtonStyle}"
+                                Command="{Binding ShowInstalledAppsCommand}">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Path Fill="#818CF8" Width="15" Height="15" Stretch="Uniform" Margin="0,0,10,0"
+                                      Data="M4,4H10V10H4V4M14,4H20V10H14V4M4,14H10V20H4V14M14,14H20V20H14V14Z" />
+                                <TextBlock Text="{Binding Strings.NavInstalledApps}" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+
+                        <!-- 5. Settings Button -->
                         <Button Style="{StaticResource SidebarNavButtonStyle}"
                                 Command="{Binding ToggleSettingsCommand}">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">

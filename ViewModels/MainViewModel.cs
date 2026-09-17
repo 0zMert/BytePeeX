@@ -89,6 +89,7 @@ namespace Folderize.ViewModels
                         card.IsSelected = card.DriveName.TrimEnd('\\').Equals(drive.TrimEnd('\\'), StringComparison.OrdinalIgnoreCase);
                     }
                     OnPropertyChanged(nameof(DriveCards));
+                    OpenInExplorer(path);
                 }
             });
 
@@ -1516,7 +1517,11 @@ namespace Folderize.ViewModels
                 }
                 else if (Directory.Exists(path))
                 {
-                    Process.Start("explorer.exe", $"\"{path}\"");
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = path,
+                        UseShellExecute = true
+                    });
                 }
             }
             catch (Exception ex)
