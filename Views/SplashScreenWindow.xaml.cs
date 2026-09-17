@@ -38,17 +38,17 @@ namespace Folderize.Views
         public async Task RunLoadingAsync()
         {
             // Give window a moment to render layout
-            await Task.Delay(200);
+            await Task.Delay(100);
 
             double totalWidth = ProgressBarTrack.ActualWidth > 50 ? ProgressBarTrack.ActualWidth - 2 : 418;
 
             var steps = new (double TargetPercent, string StatusText, int DurationMs)[]
             {
-                (18, "Sistem çekirdeği başlatılıyor...", 650),
-                (42, "Fiziksel disk sürücüleri taranıyor...", 750),
-                (68, "Yüklü uygulamalar ve dizin mimarisi taranıyor...", 800),
-                (88, "Arayüz teması ve grafik motoru hazırlanıyor...", 650),
-                (100, "Folderize hazır!", 450)
+                (20, "Sistem çekirdeği başlatılıyor...", 200),
+                (45, "Fiziksel disk sürücüleri taranıyor...", 250),
+                (70, "Yüklü uygulamalar ve dizin mimarisi taranıyor...", 300),
+                (90, "Arayüz teması ve grafik motoru hazırlanıyor...", 200),
+                (100, "Folderize hazır!", 120)
             };
 
             double currentPercent = 0;
@@ -74,7 +74,7 @@ namespace Folderize.Views
                 // Smoothly update percentage text
                 int startP = (int)currentPercent;
                 int endP = (int)targetPercent;
-                int ticks = Math.Max(1, durationMs / 30);
+                int ticks = Math.Max(1, durationMs / 20);
                 for (int i = 1; i <= ticks; i++)
                 {
                     await Task.Delay(durationMs / ticks);
@@ -86,7 +86,7 @@ namespace Folderize.Views
             }
 
             TxtPercent.Text = "100%";
-            await Task.Delay(250);
+            await Task.Delay(80);
         }
     }
 }

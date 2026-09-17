@@ -725,52 +725,81 @@ namespace Folderize.ViewModels
 
         public void LoadDrivesDirect()
         {
-            var drivesList = new List<string>();
-            var cardsList = new List<DriveCardModel>();
+            // Run drive detection asynchronously in background to prevent freezing the UI thread
+            _ = LoadDrivesAsync();
+        }
+
+        public async Task LoadDrivesAsync()
+        {
             try
             {
-                var readyDrives = DriveInfo.GetDrives()
-                    .Where(d => d.IsReady && (d.DriveType == DriveType.Fixed || d.DriveType == DriveType.Removable))
-                    .ToList();
-
-                foreach (var d in readyDrives)
+                var (drivesList, cardsList) = await Task.Run(() =>
                 {
-                    drivesList.Add(d.Name);
-                    long total = d.TotalSize;
-                    long free = d.TotalFreeSpace;
-                    long used = total - free;
-                    cardsList.Add(new DriveCardModel
+                    var drives = new List<string>();
+                    var cards = new List<DriveCardModel>();
+                    try
                     {
-                        DriveName = d.Name.TrimEnd('\\'),
-                        TotalSizeBytes = total,
-                        UsedSizeBytes = used,
-                        FreeSizeBytes = free,
-                        UsedPercent = total > 0 ? (double)used / total * 100.0 : 0,
-                        IsRemovable = d.DriveType == DriveType.Removable,
-                        IsSelected = d.Name.Equals(SelectedPath, StringComparison.OrdinalIgnoreCase)
-                    });
+                        var allDrives = DriveInfo.GetDrives();
+                        foreach (var d in allDrives)
+                        {
+                            try
+                            {
+                                if (d.IsReady && (d.DriveType == DriveType.Fixed || d.DriveType == DriveType.Removable))
+                                {
+                                    drives.Add(d.Name);
+                                    long total = d.TotalSize;
+                                    long free = d.TotalFreeSpace;
+                                    long used = total - free;
+                                    cards.Add(new DriveCardModel
+                                    {
+                                        DriveName = d.Name.TrimEnd('\\'),
+                                        TotalSizeBytes = total,
+                                        UsedSizeBytes = used,
+                                        FreeSizeBytes = free,
+                                        UsedPercent = total > 0 ? (double)used / total * 100.0 : 0,
+                                        IsRemovable = d.DriveType == DriveType.Removable,
+                                        IsSelected = d.Name.Equals(SelectedPath, StringComparison.OrdinalIgnoreCase)
+                                    });
+                                }
+                            }
+                            catch
+                            {
+                                // Inaccessible or timeout drive
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        drives.Add("C:\\");
+                    }
+                    return (drives, cards);
+                });
+
+                if (drivesList.Count > 0)
+                {
+                    AvailableDrives.Clear();
+                    AvailableDrives.AddRange(drivesList);
+                }
+
+                if (cardsList.Count > 0)
+                {
+                    DriveCards.Clear();
+                    foreach (var card in cardsList)
+                    {
+                        DriveCards.Add(card);
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(SelectedPath))
+                {
+                    foreach (var card in DriveCards)
+                    {
+                        card.IsSelected = card.DriveName.TrimEnd('\\').Equals(SelectedPath.TrimEnd('\\'), StringComparison.OrdinalIgnoreCase);
+                    }
                 }
             }
             catch
             {
-                drivesList.Add("C:\\");
-            }
-
-            AvailableDrives.Clear();
-            AvailableDrives.AddRange(drivesList);
-
-            DriveCards.Clear();
-            foreach (var card in cardsList)
-            {
-                DriveCards.Add(card);
-            }
-
-            if (!string.IsNullOrEmpty(SelectedPath))
-            {
-                foreach (var card in DriveCards)
-                {
-                    card.IsSelected = card.DriveName.TrimEnd('\\').Equals(SelectedPath.TrimEnd('\\'), StringComparison.OrdinalIgnoreCase);
-                }
             }
         }
 

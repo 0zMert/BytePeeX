@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 using System.Windows;
 using Folderize.Views;
@@ -10,12 +10,6 @@ namespace Folderize;
 /// </summary>
 public partial class App : Application
 {
-    [DllImport("shell32.dll")]
-    private static extern void SHChangeNotify(int wEventId, uint uFlags, IntPtr dwItem1, IntPtr dwItem2);
-
-    private const int SHCNE_ASSOCCHANGED = 0x08000000;
-    private const uint SHCNF_IDLIST = 0x0000;
-
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
@@ -32,27 +26,24 @@ public partial class App : Application
 
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
-        try
-        {
-            SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, IntPtr.Zero, IntPtr.Zero);
-        }
-        catch { }
-
-        // 1. Show splash screen
+        // 1. Show splash screen immediately
         var splash = new SplashScreenWindow();
         splash.Show();
 
-        // 2. Await animated loading sequence (~3.5 seconds)
-        await splash.RunLoadingAsync();
+        // 2. Start animated loading sequence in parallel
+        var splashTask = splash.RunLoadingAsync();
 
-        // 3. Instantiate and show MainWindow
+        // 3. Initialize MainWindow in parallel so it is completely ready when splash finishes
         var mainWindow = new MainWindow();
         Application.Current.MainWindow = mainWindow;
         mainWindow.Closed += (s, ev) => Shutdown();
+
+        // 4. Await splash animation completion
+        await splashTask;
+
+        // 5. Instantly show MainWindow and close splash with zero delay
         mainWindow.Show();
         mainWindow.Activate();
-
-        // 4. Safely close splash screen
         splash.Close();
     }
 }
