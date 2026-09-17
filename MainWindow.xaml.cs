@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media;
 using Folderize.Models;
 using Folderize.ViewModels;
 
@@ -90,10 +91,30 @@ namespace Folderize
 
         private void GridViewColumnHeader_Click(object sender, RoutedEventArgs e)
         {
-            if (e.OriginalSource is GridViewColumnHeader header && header.Tag is string tag)
+            var header = e.OriginalSource as GridViewColumnHeader ?? FindVisualParent<GridViewColumnHeader>(e.OriginalSource as DependencyObject);
+            if (header != null && header.Tag is string tag)
             {
                 _viewModel.SortBy(tag);
             }
+        }
+
+        private void InstalledAppsColumnHeader_Click(object sender, RoutedEventArgs e)
+        {
+            var header = e.OriginalSource as GridViewColumnHeader ?? FindVisualParent<GridViewColumnHeader>(e.OriginalSource as DependencyObject);
+            if (header != null && header.Tag is string tag)
+            {
+                _viewModel.SortInstalledApps(tag);
+            }
+        }
+
+        private static T? FindVisualParent<T>(DependencyObject? child) where T : DependencyObject
+        {
+            while (child != null)
+            {
+                if (child is T parent) return parent;
+                child = VisualTreeHelper.GetParent(child);
+            }
+            return null;
         }
     }
 }

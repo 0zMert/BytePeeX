@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Folderize.Models
 {
@@ -17,23 +17,37 @@ namespace Folderize.Models
 
         public string FormattedLastRun => LastRunTime.HasValue && LastRunTime.Value > DateTime.MinValue
             ? LastRunTime.Value.ToString("dd.MM.yyyy HH:mm")
-            : "Bilinmiyor";
+            : (Services.LocalizationService.Instance.IsTurkish ? "Bilinmiyor" : "Unknown");
 
         public string RelativeLastRun
         {
             get
             {
+                bool tr = Services.LocalizationService.Instance.IsTurkish;
                 if (!LastRunTime.HasValue || LastRunTime.Value <= DateTime.MinValue)
-                    return "Bilinmiyor";
+                    return tr ? "Bilinmiyor" : "Unknown";
 
                 var diff = DateTime.Now - LastRunTime.Value;
                 if (diff.TotalDays < 0) return LastRunTime.Value.ToString("dd.MM.yyyy");
-                if (diff.TotalHours < 1) return $"{(int)Math.Max(1, diff.TotalMinutes)} dk önce";
-                if (diff.TotalDays < 1) return $"Bugün {LastRunTime.Value:HH:mm}";
-                if (diff.TotalDays < 2) return $"Dün {LastRunTime.Value:HH:mm}";
-                if (diff.TotalDays < 30) return $"{(int)diff.TotalDays} gün önce";
-                if (diff.TotalDays < 365) return $"{(int)(diff.TotalDays / 30)} ay önce";
-                return LastRunTime.Value.ToString("dd.MM.yyyy");
+
+                if (tr)
+                {
+                    if (diff.TotalHours < 1) return $"{(int)Math.Max(1, diff.TotalMinutes)} dk önce";
+                    if (diff.TotalDays < 1) return $"Bugün {LastRunTime.Value:HH:mm}";
+                    if (diff.TotalDays < 2) return $"Dün {LastRunTime.Value:HH:mm}";
+                    if (diff.TotalDays < 30) return $"{(int)diff.TotalDays} gün önce";
+                    if (diff.TotalDays < 365) return $"{(int)(diff.TotalDays / 30)} ay önce";
+                    return LastRunTime.Value.ToString("dd.MM.yyyy");
+                }
+                else
+                {
+                    if (diff.TotalHours < 1) return $"{(int)Math.Max(1, diff.TotalMinutes)} min ago";
+                    if (diff.TotalDays < 1) return $"Today {LastRunTime.Value:HH:mm}";
+                    if (diff.TotalDays < 2) return $"Yesterday {LastRunTime.Value:HH:mm}";
+                    if (diff.TotalDays < 30) return $"{(int)diff.TotalDays} days ago";
+                    if (diff.TotalDays < 365) return $"{(int)(diff.TotalDays / 30)} months ago";
+                    return LastRunTime.Value.ToString("dd.MM.yyyy");
+                }
             }
         }
     }

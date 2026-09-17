@@ -127,14 +127,15 @@ namespace Folderize.ViewModels
                 OnPropertyChanged(nameof(IsDashboardViewActive));
                 if (InstalledApps.Count == 0)
                 {
-                    StatusText = "Yüklü uygulamalar taranıyor...";
+                    StatusText = Strings.Scanning;
                     var apps = await Task.Run(() => _appService.GetInstalledApplications());
                     InstalledApps.Clear();
                     foreach (var app in apps)
                     {
                         InstalledApps.Add(app);
                     }
-                    StatusText = $"Toplam {InstalledApps.Count} uygulama bulundu.";
+                    SortInstalledApps("SizeBytes");
+                    StatusText = string.Format(Strings.AppsFoundFormat, InstalledApps.Count);
                 }
             });
 
@@ -248,6 +249,123 @@ namespace Folderize.ViewModels
                 {
                 }
             });
+
+            SetLanguageCommand = new RelayCommand<string>(lang =>
+            {
+                if (!string.IsNullOrEmpty(lang))
+                {
+                    Strings.CurrentLanguage = lang;
+                    NotifyLanguageChanged();
+                }
+            });
+        }
+
+        public LocalizationService Strings => LocalizationService.Instance;
+        public bool IsTurkish => Strings.IsTurkish;
+        public bool IsEnglish => Strings.IsEnglish;
+
+        public ICommand SetLanguageCommand { get; }
+
+        public string InstalledAppsSortColumn { get; private set; } = "SizeBytes";
+        public bool InstalledAppsSortAscending { get; private set; } = false;
+
+        public string InstalledAppsColNameHeader => GetInstalledAppsHeader(Strings.ColAppName, "Name");
+        public string InstalledAppsColPublisherHeader => GetInstalledAppsHeader(Strings.ColPublisher, "Publisher");
+        public string InstalledAppsColVersionHeader => GetInstalledAppsHeader(Strings.ColVersion, "Version");
+        public string InstalledAppsColLastRunHeader => GetInstalledAppsHeader(Strings.ColLastRun, "LastRunTime");
+        public string InstalledAppsColSizeHeader => GetInstalledAppsHeader(Strings.ColAppSize, "SizeBytes");
+        public string InstalledAppsColPercentHeader => GetInstalledAppsHeader(Strings.ColAppPercent, "PercentOfTotal");
+
+        private string GetInstalledAppsHeader(string title, string column)
+        {
+            if (InstalledAppsSortColumn.Equals(column, StringComparison.OrdinalIgnoreCase))
+            {
+                return $"{title} {(InstalledAppsSortAscending ? "▲" : "▼")}";
+            }
+            return title;
+        }
+
+        public void SortInstalledApps(string columnName)
+        {
+            if (InstalledApps.Count == 0) return;
+
+            if (InstalledAppsSortColumn.Equals(columnName, StringComparison.OrdinalIgnoreCase))
+            {
+                InstalledAppsSortAscending = !InstalledAppsSortAscending;
+            }
+            else
+            {
+                InstalledAppsSortColumn = columnName;
+                InstalledAppsSortAscending = (columnName.Equals("Name", StringComparison.OrdinalIgnoreCase) ||
+                                              columnName.Equals("Publisher", StringComparison.OrdinalIgnoreCase) ||
+                                              columnName.Equals("Version", StringComparison.OrdinalIgnoreCase));
+            }
+
+            var list = InstalledApps.ToList();
+            IEnumerable<InstalledAppModel> sorted = columnName.ToLowerInvariant() switch
+            {
+                "name" => InstalledAppsSortAscending
+                    ? list.OrderBy(a => a.Name, StringComparer.CurrentCultureIgnoreCase)
+                    : list.OrderByDescending(a => a.Name, StringComparer.CurrentCultureIgnoreCase),
+
+                "publisher" => InstalledAppsSortAscending
+                    ? list.OrderBy(a => a.Publisher, StringComparer.CurrentCultureIgnoreCase)
+                    : list.OrderByDescending(a => a.Publisher, StringComparer.CurrentCultureIgnoreCase),
+
+                "version" => InstalledAppsSortAscending
+                    ? list.OrderBy(a => a.Version, StringComparer.CurrentCultureIgnoreCase)
+                    : list.OrderByDescending(a => a.Version, StringComparer.CurrentCultureIgnoreCase),
+
+                "lastruntime" or "lastrun" => InstalledAppsSortAscending
+                    ? list.OrderBy(a => a.LastRunTime ?? DateTime.MinValue)
+                    : list.OrderByDescending(a => a.LastRunTime ?? DateTime.MinValue),
+
+                "sizebytes" or "size" => InstalledAppsSortAscending
+                    ? list.OrderBy(a => a.SizeBytes)
+                    : list.OrderByDescending(a => a.SizeBytes),
+
+                "percentoftotal" or "percent" => InstalledAppsSortAscending
+                    ? list.OrderBy(a => a.PercentOfTotal)
+                    : list.OrderByDescending(a => a.PercentOfTotal),
+
+                _ => list
+            };
+
+            InstalledApps.Clear();
+            foreach (var app in sorted)
+            {
+                InstalledApps.Add(app);
+            }
+
+            OnPropertyChanged(nameof(InstalledAppsColNameHeader));
+            OnPropertyChanged(nameof(InstalledAppsColPublisherHeader));
+            OnPropertyChanged(nameof(InstalledAppsColVersionHeader));
+            OnPropertyChanged(nameof(InstalledAppsColLastRunHeader));
+            OnPropertyChanged(nameof(InstalledAppsColSizeHeader));
+            OnPropertyChanged(nameof(InstalledAppsColPercentHeader));
+        }
+
+        public void NotifyLanguageChanged()
+        {
+            OnPropertyChanged(nameof(IsTurkish));
+            OnPropertyChanged(nameof(IsEnglish));
+            OnPropertyChanged(nameof(Strings));
+            OnPropertyChanged(nameof(InstalledAppsColNameHeader));
+            OnPropertyChanged(nameof(InstalledAppsColPublisherHeader));
+            OnPropertyChanged(nameof(InstalledAppsColVersionHeader));
+            OnPropertyChanged(nameof(InstalledAppsColLastRunHeader));
+            OnPropertyChanged(nameof(InstalledAppsColSizeHeader));
+            OnPropertyChanged(nameof(InstalledAppsColPercentHeader));
+
+            LoadDrivesDirect();
+
+            if (InstalledApps.Count > 0)
+            {
+                var current = InstalledApps.ToList();
+                InstalledApps.Clear();
+                foreach (var app in current) InstalledApps.Add(app);
+                StatusText = string.Format(Strings.AppsFoundFormat, InstalledApps.Count);
+            }
         }
 
         public ObservableCollection<FileSystemNode> VisibleNodes { get; }

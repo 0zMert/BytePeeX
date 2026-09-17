@@ -23,8 +23,8 @@ Folderize ultra hafif boyutta (**yalnızca ~1.2 MB**) çalışacak şekilde opti
 ## 📦 Hızlı Başlangıç
 
 1. [Releases](https://github.com/0zMert/Foldarize/releases) sayfasından en güncel paketi indirin:
-   - **`Folderize-v0.2-win-x64-Standalone.zip`**: Bilgisayarınızda .NET 9 yüklü olmasa bile doğrudan çalışır (Önerilen).
-   - **`Folderize-v0.2-win-x64.zip`**: Sisteminde .NET 9 Desktop Runtime kurulu olanlar için ultra hafif sürüm.
+   - **`Folderize-v0.3-win-x64-Standalone.zip`**: Bilgisayarınızda .NET 9 yüklü olmasa bile doğrudan çalışır (Önerilen).
+   - **`Folderize-v0.3-win-x64.zip`**: Sisteminde .NET 9 Desktop Runtime kurulu olanlar için ultra hafif sürüm.
 2. Arşivi istediğiniz bir klasöre çıkartın.
 3. **`Folderize.exe`** dosyasına çift tıklayarak uygulamayı başlatın.
 

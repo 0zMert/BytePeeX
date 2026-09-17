@@ -26,12 +26,12 @@ namespace Folderize.Views
                 }
                 else
                 {
-                    TxtVersion.Text = "v0.2";
+                    TxtVersion.Text = "v0.3";
                 }
             }
             catch
             {
-                TxtVersion.Text = "v0.2";
+                TxtVersion.Text = "v0.3";
             }
         }
 

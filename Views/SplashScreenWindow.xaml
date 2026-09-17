@@ -37,7 +37,7 @@
                     Background="#151F32" BorderBrush="#334155" BorderThickness="1" CornerRadius="12" Padding="10,3">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Ellipse Width="6" Height="6" Fill="#34D399" Margin="0,0,6,0" VerticalAlignment="Center" />
-                    <TextBlock x:Name="TxtVersion" Text="v0.2" Foreground="#38BDF8" FontWeight="Bold" FontSize="11" VerticalAlignment="Center" />
+                    <TextBlock x:Name="TxtVersion" Text="v0.3" Foreground="#38BDF8" FontWeight="Bold" FontSize="11" VerticalAlignment="Center" />
                 </StackPanel>
             </Border>
 

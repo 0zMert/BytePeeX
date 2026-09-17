@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
@@ -50,6 +50,34 @@ namespace Folderize.Converters
                 return b ? Visibility.Collapsed : Visibility.Visible;
             }
             return Visibility.Visible;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            => throw new NotImplementedException();
+    }
+
+    public class LanguageActiveBgConverter : IValueConverter
+    {
+        private static readonly SolidColorBrush ActiveBrush = new((Color)ColorConverter.ConvertFromString("#2563EB"));
+        private static readonly SolidColorBrush InactiveBrush = new((Color)ColorConverter.ConvertFromString("#1E293B"));
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return (value is bool b && b) ? ActiveBrush : InactiveBrush;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            => throw new NotImplementedException();
+    }
+
+    public class LanguageActiveFgConverter : IValueConverter
+    {
+        private static readonly SolidColorBrush ActiveBrush = new((Color)ColorConverter.ConvertFromString("#FFFFFF"));
+        private static readonly SolidColorBrush InactiveBrush = new((Color)ColorConverter.ConvertFromString("#94A3B8"));
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return (value is bool b && b) ? ActiveBrush : InactiveBrush;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
