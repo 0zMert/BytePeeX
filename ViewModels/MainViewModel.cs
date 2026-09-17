@@ -1307,15 +1307,14 @@ namespace Folderize.ViewModels
 
         private void SelectFolder()
         {
-            var dialog = new OpenFolderDialog
+            var picker = new Views.FolderPickerWindow(DriveCards, SelectedPath)
             {
-                Title = "Taranacak Klasörü Seçin",
-                InitialDirectory = Directory.Exists(SelectedPath) ? SelectedPath : "C:\\"
+                Owner = Application.Current?.MainWindow
             };
 
-            if (dialog.ShowDialog() == true)
+            if (picker.ShowDialog() == true && !string.IsNullOrWhiteSpace(picker.SelectedPath))
             {
-                SelectedPath = dialog.FolderName;
+                SelectedPath = picker.SelectedPath;
                 _ = StartScanAsync();
             }
         }
