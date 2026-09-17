@@ -395,9 +395,9 @@
 
                 <!-- Right: Drive Storage Indicator, Language Switcher & Settings -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <!-- Active Drive Pill (Visible only on Overview / Dashboard) -->
+                    <!-- Active Drive / Location Pill (Visible on Overview, Top Files, and Large Files) -->
                     <Border Background="#151F32" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="6" Padding="10,4" Margin="0,0,8,0"
-                            Visibility="{Binding IsDashboardViewActive, Converter={StaticResource BoolToVisibility}}">
+                            Visibility="{Binding IsLocationPillVisible, Converter={StaticResource BoolToVisibility}}">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <Path Fill="#38BDF8" Width="14" Height="14" Stretch="Uniform" Margin="0,0,6,0"
                                   Data="M6,2H18A2,2 0 0,1 20,4V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V4A2,2 0 0,1 6,2M12,4A6,6 0 0,0 6,10C6,12.19 7.18,14.11 8.93,15.16L8,19H16L15.07,15.16C16.82,14.11 18,12.19 18,10A6,6 0 0,0 12,4Z" />

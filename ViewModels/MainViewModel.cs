@@ -117,6 +117,7 @@ namespace Folderize.ViewModels
                 IsLargeFilesViewActive = false;
                 IsSettingsOpen = false;
                 OnPropertyChanged(nameof(IsDashboardViewActive));
+                OnPropertyChanged(nameof(IsLocationPillVisible));
             });
 
             ShowInstalledAppsCommand = new RelayCommand(async () =>
@@ -126,6 +127,7 @@ namespace Folderize.ViewModels
                 IsAppsViewActive = true;
                 IsSettingsOpen = false;
                 OnPropertyChanged(nameof(IsDashboardViewActive));
+                OnPropertyChanged(nameof(IsLocationPillVisible));
                 if (InstalledApps.Count == 0)
                 {
                     StatusText = Strings.Scanning;
@@ -147,6 +149,7 @@ namespace Folderize.ViewModels
                 IsTopFilesViewActive = true;
                 IsSettingsOpen = false;
                 OnPropertyChanged(nameof(IsDashboardViewActive));
+                OnPropertyChanged(nameof(IsLocationPillVisible));
                 PopulateTopFiles();
             });
 
@@ -157,6 +160,7 @@ namespace Folderize.ViewModels
                 IsLargeFilesViewActive = true;
                 IsSettingsOpen = false;
                 OnPropertyChanged(nameof(IsDashboardViewActive));
+                OnPropertyChanged(nameof(IsLocationPillVisible));
                 PopulateLargeFiles(50 * 1024 * 1024);
             });
 
@@ -472,6 +476,7 @@ namespace Folderize.ViewModels
                     _isAppsViewActive = value;
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(IsDashboardViewActive));
+                    OnPropertyChanged(nameof(IsLocationPillVisible));
                 }
             }
         }
@@ -505,6 +510,7 @@ namespace Folderize.ViewModels
         }
 
         public bool IsDashboardViewActive => !IsAppsViewActive && !IsTopFilesViewActive && !IsLargeFilesViewActive;
+        public bool IsLocationPillVisible => !IsAppsViewActive && !string.IsNullOrWhiteSpace(SelectedPath);
 
         public string ActiveBottomTab
         {
@@ -570,6 +576,7 @@ namespace Folderize.ViewModels
                 {
                     _selectedPath = value;
                     OnPropertyChanged();
+                    OnPropertyChanged(nameof(IsLocationPillVisible));
                     CommandManager.InvalidateRequerySuggested();
                 }
             }
