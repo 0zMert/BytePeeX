@@ -1,4 +1,4 @@
-﻿<Window x:Class="BytePeeX.MainWindow"
+<Window x:Class="BytePeeX.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -365,7 +365,7 @@
                     </Border>
                     <Border Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,1" Margin="6,0,0,0" VerticalAlignment="Center"
                             Visibility="{Binding IsRunningAsAdmin, Converter={StaticResource BoolToVisibility}}"
-                            ToolTip="Yönetici yetkisi aktif / Running with Administrator privileges">
+                            ToolTip="{Binding Strings.AdminActiveToolTip}">
                         <TextBlock Text="{Binding Strings.AdminBadge}" FontSize="9" Foreground="#34D399" FontWeight="Bold" />
                     </Border>
                 </StackPanel>
@@ -418,13 +418,13 @@
                     <!-- Run As Admin Quick Button (Shown only if not already running as admin) -->
                     <Button Command="{Binding RestartAsAdminCommand}"
                             Visibility="{Binding IsRunningAsAdmin, Converter={StaticResource InvertedBoolToVisibility}}"
-                            ToolTip="Korumalı sistem klasörlerini (System Volume Information vb.) okuyabilmek için Yönetici olarak yeniden başlatır"
+                            ToolTip="{Binding Strings.SwitchToAdminToolTip}"
                             Background="#854D0E" Foreground="#FEF08A" BorderBrush="#CA8A04" BorderThickness="1"
                             Padding="8,4" Margin="6,0,0,0" Cursor="Hand" FontWeight="SemiBold">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <Path Fill="#FACC15" Width="11" Height="11" Stretch="Uniform" Margin="0,0,5,0"
                                   Data="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,7A2,2 0 0,1 14,9A2,2 0 0,1 12,11A2,2 0 0,1 10,9A2,2 0 0,1 12,7M12,13C13.56,13 16,13.78 16,15V17H8V15C8,13.78 10.44,13 12,13Z" />
-                            <TextBlock Text="🛡️ Yönetici Moduna Geç" FontSize="11" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding Strings.SwitchToAdminMode}" FontSize="11" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
                 </StackPanel>
@@ -622,7 +622,7 @@
                                     <DockPanel LastChildFill="False">
                                         <TextBlock Text="≡ Tree View" Foreground="#94A3B8" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0" />
                                         <Button Content="{Binding Strings.ExpandLevel, StringFormat='⊞ {0}'}" Command="{Binding ExpandNextLevelCommand}"
-                                                ToolTip="Sonraki alt seviyedeki klasörleri sırayla açar"
+                                                ToolTip="{Binding Strings.ExpandLevelToolTip}"
                                                 Background="#25334D" Foreground="#38BDF8" BorderThickness="1" BorderBrush="#38BDF8" Padding="7,3" Cursor="Hand" Margin="0,0,8,0" FontSize="11">
                                             <Button.Resources>
                                                 <Style TargetType="Border">
@@ -631,7 +631,7 @@
                                             </Button.Resources>
                                         </Button>
                                         <Button Content="{Binding Strings.CollapseLevel, StringFormat='⊟ {0}'}" Command="{Binding CollapseLevelCommand}"
-                                                ToolTip="En son açılan seviyedeki klasörleri kapatır"
+                                                ToolTip="{Binding Strings.CollapseLevelToolTip}"
                                                 Background="#1E293B" Foreground="#94A3B8" BorderThickness="1" BorderBrush="#334155" Padding="7,3" Cursor="Hand" Margin="0,0,10,0" FontSize="11">
                                             <Button.Resources>
                                                 <Style TargetType="Border">
@@ -649,7 +649,7 @@
                                             </Button.Resources>
                                         </Button>
                                         <Button Content="{Binding Strings.CollapseAll, StringFormat='⊟ {0}'}" Command="{Binding CollapseAllCommand}"
-                                                ToolTip="Tüm alt dalları kapatıp kök dizine döner"
+                                                ToolTip="{Binding Strings.CollapseAllToolTip}"
                                                 Background="Transparent" Foreground="#94A3B8" BorderThickness="0" Cursor="Hand" FontSize="11" />
                                     </DockPanel>
                                 </Border>

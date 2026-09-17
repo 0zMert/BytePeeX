@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="BytePeeX.Views.FluentExplorerControl"
+<UserControl x:Class="BytePeeX.Views.FluentExplorerControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -28,7 +28,7 @@
         <Border Grid.Row="0" Background="#202226" BorderBrush="#333333" BorderThickness="0,0,0,1" Padding="12,10">
             <StackPanel>
                 <DockPanel LastChildFill="False" Margin="0,0,0,6">
-                    <TextBlock Text="Kapasite Dağılımı (Mevcut Klasör)" FontWeight="SemiBold" Foreground="#CCCCCC" FontSize="11" />
+                    <TextBlock Text="{Binding Strings.CapacityDistributionCurrentFolder}" FontWeight="SemiBold" Foreground="#CCCCCC" FontSize="11" />
                     <TextBlock DockPanel.Dock="Right" Text="{Binding CurrentDrillDownNode.FormattedSize}" FontWeight="Bold" Foreground="#00E5FF" FontSize="11" />
                 </DockPanel>
 

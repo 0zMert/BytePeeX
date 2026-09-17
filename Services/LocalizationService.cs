@@ -94,6 +94,9 @@ namespace BytePeeX.Services
         public string CollapseLevel => IsTurkish ? "-1 Seviye Daralt" : "-1 Collapse Level";
         public string ExpandAll => IsTurkish ? "Tümünü Genişlet" : "Expand All";
         public string CollapseAll => IsTurkish ? "Tümünü Daralt" : "Collapse All";
+        public string ExpandLevelToolTip => IsTurkish ? "Sonraki alt seviyedeki klasörleri sırayla açar" : "Expands next level subfolders sequentially";
+        public string CollapseLevelToolTip => IsTurkish ? "En son açılan seviyedeki klasörleri kapatır" : "Collapses the deepest open folder level";
+        public string CollapseAllToolTip => IsTurkish ? "Tüm alt dalları kapatıp kök dizine döner" : "Collapses all branches back to root";
 
         // Context Menu
         public string MenuSendToRecycleBin => IsTurkish ? "🗑️ Geri Dönüşüm Kutusuna Gönder (Sil)" : "🗑️ Send to Recycle Bin (Delete)";
@@ -213,6 +216,10 @@ namespace BytePeeX.Services
         public string RunAsAdminActiveDesc => IsTurkish ? "BytePeeX şu anda en yüksek yönetici yetkileriyle çalışıyor. Kilitli sistem dosyaları dahil tüm disk eksiksiz taranabilir." : "BytePeeX is running with administrator privileges. All directories including locked system files can be scanned.";
         public string AdminActive => IsTurkish ? "✓ Aktif (Yönetici)" : "✓ Active (Admin)";
         public string AdminBadge => IsTurkish ? "YÖNETİCİ" : "ADMIN";
+        public string SwitchToAdminMode => IsTurkish ? "Yönetici Moduna Geç" : "Switch to Admin Mode";
+        public string SwitchToAdminToolTip => IsTurkish ? "Korumalı sistem klasörlerini (System Volume Information vb.) okuyabilmek için Yönetici olarak yeniden başlatır" : "Restart as Administrator to access protected system folders (e.g., System Volume Information)";
+        public string AdminActiveToolTip => IsTurkish ? "Yönetici yetkisi aktif / Running with Administrator privileges" : "Running with Administrator privileges";
+        public string CapacityDistributionCurrentFolder => IsTurkish ? "Kapasite Dağılımı (Mevcut Klasör)" : "Capacity Distribution (Current Folder)";
         public string CloseBtn => IsTurkish ? "Kapat" : "Close";
         public string SaveSettingsBtn => IsTurkish ? "Ayarları Kaydet" : "Save Settings";
         public string SettingsSavedNotice => IsTurkish ? "✓ Seçili ayarlar başarıyla kaydedildi" : "✓ Selected settings saved successfully";
