@@ -138,6 +138,8 @@ namespace Folderize.Services
         // Installed Apps View
         public string InstalledAppsTitle => IsTurkish ? "Yüklü Uygulamalar ve Disk Kullanımı" : "Installed Applications & Disk Usage";
         public string CloseToDashboard => IsTurkish ? "✕ Kapat (Dashboard'a Dön)" : "✕ Close (Return to Dashboard)";
+        public string Refresh => IsTurkish ? "Yenile" : "Refresh";
+        public string RefreshAppsToolTip => IsTurkish ? "Yüklü Uygulamaları Yeniden Tara" : "Rescan Installed Applications";
         public string ColAppName => IsTurkish ? "Uygulama Adı" : "Application Name";
         public string ColPublisher => IsTurkish ? "Yayıncı" : "Publisher";
         public string ColVersion => IsTurkish ? "Sürüm" : "Version";

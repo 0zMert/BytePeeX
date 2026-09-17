@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -133,7 +133,7 @@ namespace Folderize.Services
                         var displayVersion = subKey.GetValue("DisplayVersion") as string ?? "";
 
                         // Determine last execution time
-                        DateTime? lastRun = DetermineLastRun(realFolder, displayIcon, userAssistRuns);
+                        DateTime? lastRun = DetermineLastRun(displayName, realFolder, displayIcon, publisher, userAssistRuns);
 
                         apps[displayName] = new InstalledAppModel
                         {
@@ -289,12 +289,15 @@ namespace Folderize.Services
                         }
 
                         string installLoc = locMatch.Success ? locMatch.Groups[1].Value.Replace("\\\\", "\\") : "";
+                        var exeMatch = Regex.Match(content, "\"LaunchExecutable\"\\s*:\\s*\"([^\"]+)\"");
+                        string launchExe = exeMatch.Success ? exeMatch.Groups[1].Value : "";
+
                         if (sizeBytes <= 0 && !string.IsNullOrEmpty(installLoc) && Directory.Exists(installLoc))
                         {
                             sizeBytes = CalculateDirectorySize(installLoc);
                         }
 
-                        DateTime? lastRun = DetermineLastRun(installLoc, "", userAssistRuns);
+                        DateTime? lastRun = DetermineLastRun(gameName, installLoc, launchExe, "Epic Games", userAssistRuns);
 
                         if (sizeBytes > 0)
                         {
@@ -361,7 +364,7 @@ namespace Folderize.Services
                             if (!string.IsNullOrEmpty(dir) && Directory.Exists(dir))
                             {
                                 long size = CalculateDirectorySize(dir);
-                                DateTime? lastRun = DetermineLastRun(dir, "", userAssistRuns);
+                                DateTime? lastRun = DetermineLastRun(name, dir, "", "Electronic Arts", userAssistRuns);
 
                                 if (size > 0)
                                 {
@@ -453,10 +456,25 @@ namespace Folderize.Services
         }
 
         private static DateTime? DetermineLastRun(
+            string appName,
             string installLocation,
             string displayIcon,
+            string publisher,
             Dictionary<string, DateTime> userAssistRuns)
         {
+            DateTime? maxTime = null;
+
+            void Consider(DateTime? dt)
+            {
+                if (dt.HasValue && dt.Value > DateTime.MinValue && dt.Value <= DateTime.Now.AddMinutes(5))
+                {
+                    if (!maxTime.HasValue || dt.Value > maxTime.Value)
+                    {
+                        maxTime = dt.Value;
+                    }
+                }
+            }
+
             try
             {
                 // 1. Check direct match in UserAssist for icon exe
@@ -466,45 +484,192 @@ namespace Folderize.Services
                     string exeName = Path.GetFileName(iconPath);
                     if (!string.IsNullOrEmpty(exeName) && userAssistRuns.TryGetValue(exeName, out var dt))
                     {
-                        return dt;
+                        Consider(dt);
                     }
                 }
 
-                // 2. Check executables in installation folder
+                // 2. Special detection for Epic Games & Epic Games Launcher
+                if (appName.IndexOf("Epic", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    installLocation.IndexOf("Epic", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    string epicProgData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Epic", "EpicGamesLauncher");
+                    if (Directory.Exists(epicProgData))
+                    {
+                        Consider(GetLatestFileTimeInFolders(epicProgData, new[] { "Data\\Catalog", "Data\\EMS", "Data", "Logs", "Saved", "" }));
+                    }
+
+                    string epicLocal = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "EpicGamesLauncher");
+                    if (Directory.Exists(epicLocal))
+                    {
+                        Consider(GetLatestFileTimeInFolders(epicLocal, new[] { "Saved\\Logs", "Saved\\Config", "Saved", "" }));
+                    }
+                }
+
+                // 3. Normalized app name for searching data folders and shortcuts
+                string cleanAppName = Regex.Replace(appName, @"\s*\([^)]*\)", "").Trim();
+                cleanAppName = Regex.Replace(cleanAppName, @"\b(Launcher|Client|Desktop|Edition|64-bit|32-bit)\b", "", RegexOptions.IgnoreCase).Trim();
+
+                if (!string.IsNullOrEmpty(cleanAppName) && userAssistRuns.TryGetValue(cleanAppName + ".exe", out var uDtClean))
+                {
+                    Consider(uDtClean);
+                }
+
+                // 4. Check executables in installation folder (recursive up to 3 levels, max 25 files)
                 if (!string.IsNullOrEmpty(installLocation) && Directory.Exists(installLocation))
                 {
-                    DateTime? maxRun = null;
-                    var exes = Directory.EnumerateFiles(installLocation, "*.exe", SearchOption.TopDirectoryOnly).Take(10);
+                    var exes = SafeEnumerateFiles(installLocation, "*.exe", maxFiles: 25, maxDepth: 3);
                     foreach (var exe in exes)
                     {
                         string name = Path.GetFileName(exe);
                         if (userAssistRuns.TryGetValue(name, out var uDt))
                         {
-                            if (!maxRun.HasValue || uDt > maxRun.Value) maxRun = uDt;
+                            Consider(uDt);
                         }
                         else
                         {
                             try
                             {
                                 var access = File.GetLastAccessTime(exe);
-                                if (access > DateTime.MinValue && access < DateTime.Now)
-                                {
-                                    if (!maxRun.HasValue || access > maxRun.Value) maxRun = access;
-                                }
+                                Consider(access);
                             }
                             catch
                             {
                             }
                         }
                     }
-                    if (maxRun.HasValue && maxRun.Value > DateTime.MinValue) return maxRun;
+                }
+
+                // 5. Check AppData and ProgramData runtime data folders
+                var appDataRoots = new[]
+                {
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)
+                };
+
+                var folderNamesToTry = new List<string>();
+                if (!string.IsNullOrWhiteSpace(appName)) folderNamesToTry.Add(appName);
+                if (!string.IsNullOrWhiteSpace(cleanAppName) && !folderNamesToTry.Contains(cleanAppName, StringComparer.OrdinalIgnoreCase))
+                    folderNamesToTry.Add(cleanAppName);
+
+                if (!string.IsNullOrEmpty(publisher))
+                {
+                    string cleanPub = Regex.Replace(publisher, @"\b(Inc\.|LLC|Corporation|Corp|GmbH|Software)\b", "", RegexOptions.IgnoreCase).Trim();
+                    if (!string.IsNullOrWhiteSpace(cleanPub))
+                    {
+                        if (!string.IsNullOrWhiteSpace(cleanAppName)) folderNamesToTry.Add(Path.Combine(cleanPub, cleanAppName));
+                        if (!string.IsNullOrWhiteSpace(appName)) folderNamesToTry.Add(Path.Combine(cleanPub, appName));
+                    }
+                }
+
+                foreach (var root in appDataRoots)
+                {
+                    if (string.IsNullOrEmpty(root) || !Directory.Exists(root)) continue;
+                    foreach (var sub in folderNamesToTry)
+                    {
+                        if (string.IsNullOrWhiteSpace(sub)) continue;
+                        string fullPath = Path.Combine(root, sub);
+                        if (Directory.Exists(fullPath))
+                        {
+                            Consider(GetLatestFileTimeInFolders(fullPath, new[] { "", "Logs", "Data", "Saved", "Cache", "Config" }));
+                        }
+                    }
+                }
+
+                // 6. Check Recent shortcuts
+                if (!string.IsNullOrEmpty(cleanAppName) && cleanAppName.Length >= 3)
+                {
+                    try
+                    {
+                        string recent = Environment.GetFolderPath(Environment.SpecialFolder.Recent);
+                        if (Directory.Exists(recent))
+                        {
+                            var lnks = SafeEnumerateFiles(recent, $"*{cleanAppName}*.lnk", maxFiles: 5, maxDepth: 1);
+                            foreach (var lnk in lnks)
+                            {
+                                try
+                                {
+                                    Consider(File.GetLastWriteTime(lnk));
+                                }
+                                catch
+                                {
+                                }
+                            }
+                        }
+                    }
+                    catch
+                    {
+                    }
                 }
             }
             catch
             {
             }
 
-            return null;
+            return maxTime;
+        }
+
+        private static DateTime? GetLatestFileTimeInFolders(string rootDir, string[] subFolders)
+        {
+            DateTime? latest = null;
+            foreach (var sub in subFolders)
+            {
+                string target = string.IsNullOrEmpty(sub) ? rootDir : Path.Combine(rootDir, sub);
+                if (!Directory.Exists(target)) continue;
+
+                try
+                {
+                    var files = SafeEnumerateFiles(target, "*.*", maxFiles: 15, maxDepth: 2);
+                    foreach (var f in files)
+                    {
+                        try
+                        {
+                            var wt = File.GetLastWriteTime(f);
+                            if (wt > DateTime.MinValue && wt <= DateTime.Now.AddMinutes(5))
+                            {
+                                if (!latest.HasValue || wt > latest.Value) latest = wt;
+                            }
+                        }
+                        catch
+                        {
+                        }
+                    }
+                }
+                catch
+                {
+                }
+            }
+            return latest;
+        }
+
+        private static List<string> SafeEnumerateFiles(string root, string pattern, int maxFiles, int maxDepth)
+        {
+            var results = new List<string>();
+            void Walk(string current, int depth)
+            {
+                if (results.Count >= maxFiles || depth > maxDepth) return;
+                try
+                {
+                    foreach (var file in Directory.EnumerateFiles(current, pattern))
+                    {
+                        results.Add(file);
+                        if (results.Count >= maxFiles) return;
+                    }
+                    if (depth < maxDepth)
+                    {
+                        foreach (var dir in Directory.EnumerateDirectories(current))
+                        {
+                            Walk(dir, depth + 1);
+                            if (results.Count >= maxFiles) return;
+                        }
+                    }
+                }
+                catch
+                {
+                }
+            }
+            Walk(root, 1);
+            return results;
         }
 
         private static string ExtractFolderFromPath(string pathWithParams)

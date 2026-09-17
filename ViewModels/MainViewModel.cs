@@ -130,16 +130,13 @@ namespace Folderize.ViewModels
                 OnPropertyChanged(nameof(IsLocationPillVisible));
                 if (InstalledApps.Count == 0)
                 {
-                    StatusText = Strings.Scanning;
-                    var apps = await Task.Run(() => _appService.GetInstalledApplications());
-                    InstalledApps.Clear();
-                    foreach (var app in apps)
-                    {
-                        InstalledApps.Add(app);
-                    }
-                    SortInstalledApps("SizeBytes");
-                    StatusText = string.Format(Strings.AppsFoundFormat, InstalledApps.Count);
+                    await RefreshInstalledAppsAsync();
                 }
+            });
+
+            RefreshInstalledAppsCommand = new RelayCommand(async () =>
+            {
+                await RefreshInstalledAppsAsync();
             });
 
             ShowTopFilesCommand = new RelayCommand(() =>
@@ -348,6 +345,26 @@ namespace Folderize.ViewModels
             OnPropertyChanged(nameof(InstalledAppsColLastRunHeader));
             OnPropertyChanged(nameof(InstalledAppsColSizeHeader));
             OnPropertyChanged(nameof(InstalledAppsColPercentHeader));
+        }
+
+        public async Task RefreshInstalledAppsAsync()
+        {
+            IsTopFilesViewActive = false;
+            IsLargeFilesViewActive = false;
+            IsAppsViewActive = true;
+            IsSettingsOpen = false;
+            OnPropertyChanged(nameof(IsDashboardViewActive));
+            OnPropertyChanged(nameof(IsLocationPillVisible));
+
+            StatusText = Strings.Scanning;
+            var apps = await Task.Run(() => _appService.GetInstalledApplications());
+            InstalledApps.Clear();
+            foreach (var app in apps)
+            {
+                InstalledApps.Add(app);
+            }
+            SortInstalledApps(InstalledAppsSortColumn ?? "SizeBytes");
+            StatusText = string.Format(Strings.AppsFoundFormat, InstalledApps.Count);
         }
 
         public void NotifyLanguageChanged()
@@ -724,6 +741,7 @@ namespace Folderize.ViewModels
         public ICommand ToggleSettingsCommand { get; }
         public ICommand ShowDashboardCommand { get; }
         public ICommand ShowInstalledAppsCommand { get; }
+        public ICommand RefreshInstalledAppsCommand { get; }
         public ICommand ShowTopFilesCommand { get; }
         public ICommand ShowLargeFilesCommand { get; }
         public ICommand FilterLargeFilesCommand { get; }

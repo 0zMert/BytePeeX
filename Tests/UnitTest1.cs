@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -129,6 +129,20 @@ namespace Tests
             Assert.False(child1.IsExpanded);
             Assert.Equal(2, vm.VisibleNodes.Count);
             Assert.DoesNotContain(subChild, vm.VisibleNodes);
+        }
+
+        [Fact]
+        public void InstalledAppService_DetectsApplications()
+        {
+            var service = new InstalledAppService();
+            var apps = service.GetInstalledApplications();
+            Assert.NotNull(apps);
+            // If any apps are installed on Windows, it should return them
+            if (apps.Count > 0)
+            {
+                Assert.All(apps, a => Assert.False(string.IsNullOrWhiteSpace(a.Name)));
+                Assert.All(apps, a => Assert.True(a.SizeBytes >= 0));
+            }
         }
     }
 }
