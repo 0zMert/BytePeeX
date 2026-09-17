@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <AssemblyName>Folderize</AssemblyName>
+    <RootNamespace>Folderize</RootNamespace>
+    <Product>Folderize</Product>
+    <Title>Folderize</Title>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <DefaultItemExcludes>$(DefaultItemExcludes);Tests\**;scratch\**</DefaultItemExcludes>
+
+    <!-- Version Metadata (0.1) -->
+    <Version>0.1.0</Version>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <FileVersion>0.1.0.0</FileVersion>
+    <InformationalVersion>0.1</InformationalVersion>
+    
+    <!-- Instant Native Startup (Ahead-of-Time Precompilation) -->
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <TieredCompilation>true</TieredCompilation>
+    <TieredPGO>true</TieredPGO>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="splash.png" />
+    <Resource Include="app.ico" />
+    <Resource Include="Resources\icon_16.png" />
+    <Resource Include="Resources\icon_32.png" />
+    <Resource Include="Resources\icon_48.png" />
+    <Resource Include="Resources\icon_256.png" />
+  </ItemGroup>
+
+</Project>
