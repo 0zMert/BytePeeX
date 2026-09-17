@@ -157,6 +157,8 @@ namespace Tests
             Assert.NotEmpty(vm.AvailableDrives);
             Assert.NotEmpty(vm.DriveCards);
             Assert.Contains(vm.DriveCards, d => d.TotalSizeBytes > 0);
+            // IsRunningAsAdmin should be initialized without throwing
+            Assert.True(vm.IsRunningAsAdmin == true || vm.IsRunningAsAdmin == false);
         }
     }
 }

@@ -345,6 +345,11 @@
                     <Border Background="#1E293B" BorderBrush="#334155" BorderThickness="1" CornerRadius="4" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
                         <TextBlock Text="v0.3" FontSize="10" Foreground="#38BDF8" FontWeight="Bold" />
                     </Border>
+                    <Border Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="6,1" Margin="6,0,0,0" VerticalAlignment="Center"
+                            Visibility="{Binding IsRunningAsAdmin, Converter={StaticResource BoolToVisibility}}"
+                            ToolTip="Yönetici yetkisi aktif / Running with Administrator privileges">
+                        <TextBlock Text="{Binding Strings.AdminBadge}" FontSize="9" Foreground="#34D399" FontWeight="Bold" />
+                    </Border>
                 </StackPanel>
 
                 <!-- Middle: Scan Toolbar Buttons (Visible only on Overview / Dashboard) -->
@@ -1597,8 +1602,23 @@
                                 </CheckBox>
                             </Border>
 
-                            <!-- Restart as Admin Option -->
-                            <Border Background="#1E293B" CornerRadius="6" Padding="12" Margin="0,0,0,16">
+                            <!-- Admin Status: Running as Admin (When already elevated) -->
+                            <Border Background="#0C281F" BorderBrush="#059669" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,16"
+                                    Visibility="{Binding IsRunningAsAdmin, Converter={StaticResource BoolToVisibility}}">
+                                <DockPanel LastChildFill="True">
+                                    <Border DockPanel.Dock="Right" Background="#064E3B" BorderBrush="#059669" BorderThickness="1" CornerRadius="4" Padding="10,5" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Strings.AdminActive}" Foreground="#34D399" FontWeight="Bold" FontSize="11" VerticalAlignment="Center" />
+                                    </Border>
+                                    <StackPanel Margin="0,0,10,0" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Strings.RunAsAdminActive}" FontWeight="SemiBold" Foreground="#34D399" FontSize="12" />
+                                        <TextBlock Text="{Binding Strings.RunAsAdminActiveDesc}" Foreground="#94A3B8" FontSize="11" Margin="0,2,0,0" TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </DockPanel>
+                            </Border>
+
+                            <!-- Restart as Admin Option (When NOT running as elevated admin) -->
+                            <Border Background="#1E293B" CornerRadius="6" Padding="12" Margin="0,0,0,16"
+                                    Visibility="{Binding IsRunningAsAdmin, Converter={StaticResource InvertedBoolToVisibility}}">
                                 <DockPanel LastChildFill="True">
                                     <Button DockPanel.Dock="Right" Content="{Binding Strings.RunAsAdminBtn}"
                                             Command="{Binding RestartAsAdminCommand}"

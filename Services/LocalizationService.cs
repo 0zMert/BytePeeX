@@ -141,9 +141,14 @@ namespace Folderize.Services
         public string HideSystemFoldersDesc => IsTurkish ? "Windows, System Volume Information, $Recycle.Bin vb. bloklarını grafikten kaldırır." : "Removes Windows, System Volume Information, $Recycle.Bin from charts.";
         public string UseBalancedScale => IsTurkish ? "Treemap'te Dengeli (Dinamik) Ölçekleme Kullan" : "Use Balanced (Dynamic) Scaling in Treemap";
         public string UseBalancedScaleDesc => IsTurkish ? "Çok büyük klasörlerin tüm alanı kaplamasını dengeler; küçük ve orta boy klasörlerin rahat okunmasını sağlar." : "Balances huge directories so smaller folders remain readable.";
+        // Admin Option
         public string RunAsAdmin => IsTurkish ? "Yönetici Yetkisiyle Çalıştır" : "Run as Administrator";
         public string RunAsAdminDesc => IsTurkish ? "Kilitli tüm sistem dosyalarını eksiksiz taramak için gereklidir." : "Required to scan locked system files without access errors.";
         public string RunAsAdminBtn => IsTurkish ? "Yönetici Yap" : "Restart as Admin";
+        public string RunAsAdminActive => IsTurkish ? "Yönetici Yetkisiyle Çalışıyor" : "Running as Administrator";
+        public string RunAsAdminActiveDesc => IsTurkish ? "Folderize şu anda en yüksek yönetici yetkileriyle çalışıyor. Kilitli sistem dosyaları dahil tüm disk eksiksiz taranabilir." : "Folderize is running with administrator privileges. All directories including locked system files can be scanned.";
+        public string AdminActive => IsTurkish ? "✓ Aktif (Yönetici)" : "✓ Active (Admin)";
+        public string AdminBadge => IsTurkish ? "YÖNETİCİ" : "ADMIN";
         public string CloseBtn => IsTurkish ? "Kapat" : "Close";
 
         // Status Bar

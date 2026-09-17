@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -241,6 +242,7 @@ namespace Folderize.ViewModels
 
             RestartAsAdminCommand = new RelayCommand(() =>
             {
+                if (IsRunningAsAdmin) return;
                 try
                 {
                     var proc = new ProcessStartInfo
@@ -747,6 +749,21 @@ namespace Folderize.ViewModels
         public ICommand NavigateUpCommand { get; }
         public ICommand NavigateBackCommand { get; }
         public ICommand RestartAsAdminCommand { get; }
+        public bool IsRunningAsAdmin { get; } = CheckIsRunningAsAdmin();
+
+        private static bool CheckIsRunningAsAdmin()
+        {
+            try
+            {
+                using var identity = WindowsIdentity.GetCurrent();
+                var principal = new WindowsPrincipal(identity);
+                return principal.IsInRole(WindowsBuiltInRole.Administrator);
+            }
+            catch
+            {
+                return false;
+            }
+        }
         public ICommand ToggleSettingsCommand { get; }
         public ICommand ShowDashboardCommand { get; }
         public ICommand ShowInstalledAppsCommand { get; }
