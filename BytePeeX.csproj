@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <AssemblyName>BytePeeX</AssemblyName>
+    <RootNamespace>BytePeeX</RootNamespace>
+    <Product>BytePeeX</Product>
+    <Title>BytePeeX</Title>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <DefaultItemExcludes>$(DefaultItemExcludes);Tests\**;scratch\**</DefaultItemExcludes>
+
+    <!-- Version Metadata (0.4) -->
+    <Version>0.4.0</Version>
+    <AssemblyVersion>0.4.0.0</AssemblyVersion>
+    <FileVersion>0.4.0.0</FileVersion>
+    <InformationalVersion>0.4</InformationalVersion>
+    
+    <!-- Release: No debug symbols (no .pdb file) -->
+    <DebugType Condition="'$(Configuration)'=='Release'">none</DebugType>
+    <DebugSymbols Condition="'$(Configuration)'=='Release'">false</DebugSymbols>
+
+    <!-- Instant Native Startup (Ahead-of-Time Precompilation) -->
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <TieredCompilation>true</TieredCompilation>
+    <TieredPGO>true</TieredPGO>
+    <!-- Elevation Manifest (highestAvailable for System Volume Info / Backup privileges) -->
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="splash.png" />
+    <Resource Include="app.ico" />
+    <Resource Include="Resources\icon_16.png" />
+    <Resource Include="Resources\icon_32.png" />
+    <Resource Include="Resources\icon_48.png" />
+    <Resource Include="Resources\icon_256.png" />
+  </ItemGroup>
+
+</Project>

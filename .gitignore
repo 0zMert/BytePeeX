@@ -1,0 +1,32 @@
+## Build results
+[Bb]in/
+[Oo]bj/
+[Pp]ublish/
+publish_*/
+release_*/
+*.zip
+
+## Scratch and temp test scripts
+scratch/
+*.log
+*.ps1
+
+## Certificates and keys
+*.cer
+*.crt
+*.pfx
+*.p12
+
+## Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Rider & VS Code
+.idea/
+.vscode/
+
+# Antigravity IDE rules
+.antigravityrules

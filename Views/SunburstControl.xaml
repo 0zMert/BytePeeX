@@ -1,0 +1,103 @@
+﻿<UserControl x:Class="BytePeeX.Views.SunburstControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="500" d:DesignWidth="600"
+             Background="Transparent">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Top Breadcrumb & Controls -->
+        <Border Grid.Row="0" Background="#1A263C" BorderBrush="#1E293B" BorderThickness="0,0,0,1" Padding="10,6">
+            <DockPanel LastChildFill="True">
+                <Button DockPanel.Dock="Left"
+                        Content="{Binding Strings.BtnUpLevel}"
+                        Command="{Binding NavigateUpCommand}"
+                        Background="#1E293B"
+                        Foreground="#94A3B8"
+                        BorderBrush="#334155"
+                        BorderThickness="1"
+                        Padding="8,2"
+                        FontSize="11"
+                        Margin="0,0,10,0"
+                        Cursor="Hand">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="4"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                    <ItemsControl ItemsSource="{Binding BreadcrumbNodes}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Button Content="{Binding Name}"
+                                            Command="{Binding DataContext.DrillToNodeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            Background="Transparent"
+                                            Foreground="#4FC3F7"
+                                            BorderThickness="0"
+                                            FontWeight="SemiBold"
+                                            Cursor="Hand"
+                                            Padding="4,2" />
+                                    <TextBlock Text="❯" Foreground="#666666" Margin="4,0" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </DockPanel>
+        </Border>
+
+        <!-- Main Drawing Canvas -->
+        <Grid Grid.Row="1" x:Name="ChartContainer" SizeChanged="ChartContainer_SizeChanged">
+            <Canvas x:Name="SunburstCanvas" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+
+            <!-- Center Info Card -->
+            <Border Width="150" Height="150"
+                    CornerRadius="75"
+                    Background="#242830"
+                    BorderBrush="#384252"
+                    BorderThickness="3"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Cursor="Hand"
+                    MouseDown="CenterCircle_MouseDown">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10">
+                    <TextBlock x:Name="TxtCenterName"
+                               Text="{Binding CurrentDrillDownNode.Name}"
+                               FontWeight="Bold"
+                               FontSize="13"
+                               Foreground="#FFFFFF"
+                               TextAlignment="Center"
+                               TextTrimming="CharacterEllipsis"
+                               MaxWidth="130" />
+                    <TextBlock x:Name="TxtCenterSize"
+                               Text="{Binding CurrentDrillDownNode.FormattedSize}"
+                               FontSize="12"
+                               FontWeight="SemiBold"
+                               Foreground="#00E5FF"
+                               Margin="0,4,0,0"
+                               TextAlignment="Center" />
+                    <TextBlock Text="{Binding Strings.DoubleTapUpLevel}"
+                               FontSize="10"
+                               Foreground="#888888"
+                               Margin="0,4,0,0"
+                               TextAlignment="Center" />
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>
