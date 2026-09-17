@@ -2,6 +2,8 @@
 [Bb]in/
 [Oo]bj/
 [Pp]ublish/
+release_portable/
+*.zip
 
 ## Scratch and temp test scripts
 scratch/
