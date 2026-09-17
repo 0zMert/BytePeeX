@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
@@ -26,12 +26,12 @@ namespace Folderize.Views
                 }
                 else
                 {
-                    TxtVersion.Text = "v0.1";
+                    TxtVersion.Text = "v0.2";
                 }
             }
             catch
             {
-                TxtVersion.Text = "v0.1";
+                TxtVersion.Text = "v0.2";
             }
         }
 

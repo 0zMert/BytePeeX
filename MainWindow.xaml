@@ -150,7 +150,7 @@
                     <Image Source="Resources/icon_32.png" Width="28" Height="28" Margin="0,0,10,0" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality" />
                     <TextBlock Text="Folderize" FontWeight="Bold" FontSize="16" Foreground="#FFFFFF" VerticalAlignment="Center" FontFamily="Segoe UI" />
                     <Border Background="#1E293B" BorderBrush="#334155" BorderThickness="1" CornerRadius="4" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="v0.1" FontSize="10" Foreground="#38BDF8" FontWeight="Bold" />
+                        <TextBlock Text="v0.2" FontSize="10" Foreground="#38BDF8" FontWeight="Bold" />
                     </Border>
                 </StackPanel>
 
