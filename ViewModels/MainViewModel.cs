@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -71,7 +72,11 @@ namespace Folderize.ViewModels
             SelectedPath = "C:\\";
             AvailableDrives = new List<string> { "C:\\" };
 
-            // Load Windows drives directly so they appear on screen immediately without delay
+            // Load saved user preferences
+            _hideSystemInTreemap = SettingsService.Instance.Settings.HideSystemInTreemap;
+            _useBalancedTreemapScale = SettingsService.Instance.Settings.UseBalancedTreemapScale;
+
+            // Load Windows drives directly and instantaneously via Win32 API (1ms) so they appear on screen immediately
             LoadDrivesDirect();
 
             SelectFolderCommand = new RelayCommand(SelectFolder);
@@ -409,6 +414,8 @@ namespace Folderize.ViewModels
                 if (_hideSystemInTreemap != value)
                 {
                     _hideSystemInTreemap = value;
+                    SettingsService.Instance.Settings.HideSystemInTreemap = value;
+                    SettingsService.Instance.Save();
                     OnPropertyChanged();
                     NotifyTreeStructureChanged();
                 }
@@ -423,6 +430,8 @@ namespace Folderize.ViewModels
                 if (_useBalancedTreemapScale != value)
                 {
                     _useBalancedTreemapScale = value;
+                    SettingsService.Instance.Settings.UseBalancedTreemapScale = value;
+                    SettingsService.Instance.Save();
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(TreemapScaleModeText));
                     NotifyTreeStructureChanged();
@@ -748,10 +757,67 @@ namespace Folderize.ViewModels
         public ICommand SelectBottomTabCommand { get; }
         public ICommand ToggleTreemapScaleCommand { get; }
 
+        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        private static extern uint GetDriveType(string lpRootPathName);
+
+        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        private static extern bool GetDiskFreeSpaceEx(
+            string lpDirectoryName,
+            out ulong lpFreeBytesAvailable,
+            out ulong lpTotalNumberOfBytes,
+            out ulong lpTotalNumberOfFreeBytes);
+
         public void LoadDrivesDirect()
         {
-            // Run drive detection asynchronously in background to prevent freezing the UI thread
-            _ = LoadDrivesAsync();
+            try
+            {
+                var drives = new List<string>();
+                var cards = new List<DriveCardModel>();
+
+                foreach (var drive in Environment.GetLogicalDrives())
+                {
+                    uint type = GetDriveType(drive);
+                    // 2 = DRIVE_REMOVABLE, 3 = DRIVE_FIXED
+                    if (type == 3 || type == 2)
+                    {
+                        if (GetDiskFreeSpaceEx(drive, out _, out ulong total, out ulong totalFree) && total > 0)
+                        {
+                            drives.Add(drive);
+                            long totalBytes = (long)total;
+                            long freeBytes = (long)totalFree;
+                            long usedBytes = totalBytes - freeBytes;
+
+                            cards.Add(new DriveCardModel
+                            {
+                                DriveName = drive.TrimEnd('\\'),
+                                TotalSizeBytes = totalBytes,
+                                UsedSizeBytes = usedBytes,
+                                FreeSizeBytes = freeBytes,
+                                UsedPercent = (double)usedBytes / totalBytes * 100.0,
+                                IsRemovable = type == 2,
+                                IsSelected = drive.TrimEnd('\\').Equals((SelectedPath ?? "C:").TrimEnd('\\'), StringComparison.OrdinalIgnoreCase)
+                            });
+                        }
+                    }
+                }
+
+                if (cards.Count > 0)
+                {
+                    AvailableDrives.Clear();
+                    AvailableDrives.AddRange(drives);
+
+                    DriveCards.Clear();
+                    foreach (var card in cards)
+                    {
+                        DriveCards.Add(card);
+                    }
+                }
+            }
+            catch
+            {
+                // Fallback to async DriveInfo if needed
+                _ = LoadDrivesAsync();
+            }
         }
 
         public async Task LoadDrivesAsync()

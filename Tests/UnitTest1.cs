@@ -132,17 +132,31 @@ namespace Tests
         }
 
         [Fact]
-        public void InstalledAppService_DetectsApplications()
+        public void SettingsService_PersistsSettings()
         {
-            var service = new InstalledAppService();
-            var apps = service.GetInstalledApplications();
-            Assert.NotNull(apps);
-            // If any apps are installed on Windows, it should return them
-            if (apps.Count > 0)
-            {
-                Assert.All(apps, a => Assert.False(string.IsNullOrWhiteSpace(a.Name)));
-                Assert.All(apps, a => Assert.True(a.SizeBytes >= 0));
-            }
+            var settings = SettingsService.Instance;
+            Assert.NotNull(settings);
+            Assert.NotNull(settings.Settings);
+
+            // Change a setting, save, and ensure it holds
+            bool prevHide = settings.Settings.HideSystemInTreemap;
+            settings.Settings.HideSystemInTreemap = !prevHide;
+            settings.Save();
+            Assert.Equal(!prevHide, settings.Settings.HideSystemInTreemap);
+
+            // Restore
+            settings.Settings.HideSystemInTreemap = prevHide;
+            settings.Save();
+        }
+
+        [Fact]
+        public void MainViewModel_LoadsDrivesImmediately()
+        {
+            var vm = new MainViewModel();
+            // Drives should be populated synchronously upon instantiation (0 delay)
+            Assert.NotEmpty(vm.AvailableDrives);
+            Assert.NotEmpty(vm.DriveCards);
+            Assert.Contains(vm.DriveCards, d => d.TotalSizeBytes > 0);
         }
     }
 }

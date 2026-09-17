@@ -13,43 +13,27 @@ namespace Folderize.Services
         public event PropertyChangedEventHandler? PropertyChanged;
 
         private string _currentLanguage = "tr";
-        private readonly string _configFilePath;
 
         public LocalizationService()
         {
             try
             {
-                string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-                string folder = Path.Combine(appData, "Folderize");
-                if (!Directory.Exists(folder))
+                string savedLang = SettingsService.Instance.Settings.Language;
+                if (savedLang == "tr" || savedLang == "en")
                 {
-                    Directory.CreateDirectory(folder);
+                    _currentLanguage = savedLang;
                 }
-                _configFilePath = Path.Combine(folder, "config.json");
-
-                if (File.Exists(_configFilePath))
+                else
                 {
-                    string json = File.ReadAllText(_configFilePath);
-                    using var doc = JsonDocument.Parse(json);
-                    if (doc.RootElement.TryGetProperty("Language", out var langProp))
-                    {
-                        string? lang = langProp.GetString();
-                        if (lang == "en" || lang == "tr")
-                        {
-                            _currentLanguage = lang;
-                            return;
-                        }
-                    }
+                    string systemLang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLowerInvariant();
+                    _currentLanguage = systemLang == "tr" ? "tr" : "en";
+                    SettingsService.Instance.Settings.Language = _currentLanguage;
+                    SettingsService.Instance.Save();
                 }
-
-                // Default detection from system culture
-                string systemLang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLowerInvariant();
-                _currentLanguage = systemLang == "tr" ? "tr" : "en";
             }
             catch
             {
                 _currentLanguage = "tr";
-                _configFilePath = "";
             }
         }
 
@@ -61,7 +45,8 @@ namespace Folderize.Services
                 if (_currentLanguage != value && (value == "tr" || value == "en"))
                 {
                     _currentLanguage = value;
-                    SavePreference(value);
+                    SettingsService.Instance.Settings.Language = value;
+                    SettingsService.Instance.Save();
                     OnPropertyChanged(string.Empty);
                 }
             }
@@ -69,21 +54,6 @@ namespace Folderize.Services
 
         public bool IsTurkish => _currentLanguage == "tr";
         public bool IsEnglish => _currentLanguage == "en";
-
-        private void SavePreference(string lang)
-        {
-            try
-            {
-                if (!string.IsNullOrEmpty(_configFilePath))
-                {
-                    string json = JsonSerializer.Serialize(new { Language = lang });
-                    File.WriteAllText(_configFilePath, json);
-                }
-            }
-            catch
-            {
-            }
-        }
 
         private void OnPropertyChanged(string propertyName)
         {
