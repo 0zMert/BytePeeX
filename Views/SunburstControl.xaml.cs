@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -15,6 +15,13 @@ namespace Folderize.Views
         {
             InitializeComponent();
             DataContextChanged += SunburstControl_DataContextChanged;
+            IsVisibleChanged += (s, e) =>
+            {
+                if (IsVisible)
+                {
+                    Dispatcher.InvokeAsync(RenderSunburst, System.Windows.Threading.DispatcherPriority.Loaded);
+                }
+            };
         }
 
         private void SunburstControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -24,7 +31,8 @@ namespace Folderize.Views
                 vm.PropertyChanged += (s, ev) =>
                 {
                     if (ev.PropertyName == nameof(MainViewModel.CurrentDrillDownNode) ||
-                        ev.PropertyName == nameof(MainViewModel.VisibleNodes))
+                        ev.PropertyName == nameof(MainViewModel.VisibleNodes) ||
+                        ev.PropertyName == nameof(MainViewModel.IsSunburstChartSelected))
                     {
                         RenderSunburst();
                     }

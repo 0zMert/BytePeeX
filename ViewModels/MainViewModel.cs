@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -99,6 +99,10 @@ namespace Folderize.ViewModels
             CollapseAllCommand = new RelayCommand(CollapseAll);
             OpenInExplorerCommand = new RelayCommand<object>(OpenInExplorer);
             CopyPathCommand = new RelayCommand<object>(CopyPathToClipboard);
+            SelectChartModeCommand = new RelayCommand<string>(mode =>
+            {
+                IsSunburstChartSelected = (mode == "Sunburst");
+            });
 
             ToggleSettingsCommand = new RelayCommand(() =>
             {
@@ -287,6 +291,25 @@ namespace Folderize.ViewModels
         }
 
         public string TreemapScaleModeText => UseBalancedTreemapScale ? "⚖ Dengeli Görünüm" : "📏 Gerçek Oran (1:1)";
+
+        private bool _isSunburstChartSelected = false;
+        public bool IsSunburstChartSelected
+        {
+            get => _isSunburstChartSelected;
+            set
+            {
+                if (_isSunburstChartSelected != value)
+                {
+                    _isSunburstChartSelected = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(IsTreemapChartSelected));
+                }
+            }
+        }
+
+        public bool IsTreemapChartSelected => !IsSunburstChartSelected;
+
+        public ICommand SelectChartModeCommand { get; }
 
         private int _treeStructureVersion;
         public int TreeStructureVersion

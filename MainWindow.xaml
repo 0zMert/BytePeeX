@@ -1,4 +1,4 @@
-﻿<Window x:Class="Folderize.MainWindow"
+<Window x:Class="Folderize.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -490,9 +490,102 @@
                             </Grid>
                         </Border>
 
-                        <!-- 2. TREEMAP BLOCKS CARD -->
+                        <!-- 2. VISUALIZATION CARD (TREEMAP / SUNBURST) -->
                         <Border Grid.Column="1" Background="#151F32" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="8" Margin="4,8,8,4">
-                            <views:TreemapControl DataContext="{Binding}" />
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+
+                                <!-- Visualization Mode Switcher Toolbar -->
+                                <Border Grid.Row="0" Background="#1A263C" BorderBrush="#1E293B" BorderThickness="0,0,0,1" Padding="10,6" CornerRadius="7,7,0,0">
+                                    <DockPanel LastChildFill="False">
+                                        <TextBlock Text="Görselleştirme:" Foreground="#64748B" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                        
+                                        <!-- Treemap Button -->
+                                        <Button Command="{Binding SelectChartModeCommand}" CommandParameter="Treemap"
+                                                Cursor="Hand" Padding="8,3" Margin="0,0,6,0" FontSize="11" FontWeight="SemiBold">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Background" Value="#1E293B" />
+                                                    <Setter Property="Foreground" Value="#94A3B8" />
+                                                    <Setter Property="BorderBrush" Value="#334155" />
+                                                    <Setter Property="BorderThickness" Value="1" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsTreemapChartSelected}" Value="True">
+                                                            <Setter Property="Background" Value="#25334D" />
+                                                            <Setter Property="Foreground" Value="#38BDF8" />
+                                                            <Setter Property="BorderBrush" Value="#38BDF8" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                            <Button.Resources>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="CornerRadius" Value="4" />
+                                                </Style>
+                                            </Button.Resources>
+                                            <TextBlock Text="📊 Treemap (Harita)" />
+                                        </Button>
+
+                                        <!-- Sunburst Button -->
+                                        <Button Command="{Binding SelectChartModeCommand}" CommandParameter="Sunburst"
+                                                Cursor="Hand" Padding="8,3" FontSize="11" FontWeight="SemiBold">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Background" Value="#1E293B" />
+                                                    <Setter Property="Foreground" Value="#94A3B8" />
+                                                    <Setter Property="BorderBrush" Value="#334155" />
+                                                    <Setter Property="BorderThickness" Value="1" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsSunburstChartSelected}" Value="True">
+                                                            <Setter Property="Background" Value="#25334D" />
+                                                            <Setter Property="Foreground" Value="#F59E0B" />
+                                                            <Setter Property="BorderBrush" Value="#F59E0B" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                            <Button.Resources>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="CornerRadius" Value="4" />
+                                                </Style>
+                                            </Button.Resources>
+                                            <TextBlock Text="☀️ Sunburst (Halka)" />
+                                        </Button>
+                                    </DockPanel>
+                                </Border>
+
+                                <!-- Visualization Views Content -->
+                                <Grid Grid.Row="1">
+                                    <views:TreemapControl DataContext="{Binding}">
+                                        <views:TreemapControl.Style>
+                                            <Style TargetType="views:TreemapControl">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsTreemapChartSelected}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </views:TreemapControl.Style>
+                                    </views:TreemapControl>
+
+                                    <views:SunburstControl DataContext="{Binding}">
+                                        <views:SunburstControl.Style>
+                                            <Style TargetType="views:SunburstControl">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsSunburstChartSelected}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </views:SunburstControl.Style>
+                                    </views:SunburstControl>
+                                </Grid>
+                            </Grid>
                         </Border>
                     </Grid>
 

@@ -2,6 +2,7 @@
 [Bb]in/
 [Oo]bj/
 [Pp]ublish/
+publish_*/
 release_*/
 *.zip
 
