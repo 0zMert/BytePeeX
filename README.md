@@ -4,6 +4,7 @@
 [![Version](https://img.shields.io/badge/version-0.4.0-blue.svg)](https://github.com/0zMert/BytePeeX/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011%20(x64)-0078d7.svg)](https://github.com/0zMert/BytePeeX)
 [![Framework](https://img.shields.io/badge/.NET-9.0%20WPF-512bd4.svg)](https://dotnet.microsoft.com/download/dotnet/9.0)
+[![Website](https://img.shields.io/badge/website-mertoz.dev-0ea5e9.svg)](https://mertoz.dev)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Language](https://img.shields.io/badge/language-TR%20%7C%20EN-orange.svg)](#-çoklu-dil-desteği-tr--en)
 
@@ -107,6 +108,13 @@ dotnet publish BytePeeX.csproj -c Release -r win-x64 --self-contained false -p:P
 # Bağımsız tak-çalıştır sürüm olarak yayınlayın (~59 MB)
 dotnet publish BytePeeX.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish/win-x64-standalone
 ```
+
+---
+
+## 👨‍💻 Geliştirici & İletişim
+
+- **Web:** [mertoz.dev](https://mertoz.dev)
+- **GitHub:** [@0zMert](https://github.com/0zMert)
 
 ---
 
